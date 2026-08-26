@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -9,51 +9,36 @@ import {
 import { useAppStore } from '../store/useAppStore';
 import { getTranslation } from '../utils/translations';
 
-/* ── Data ────────────────────────────────────────────────────────────── */
-const SCHOLARSHIPS = [
-  { id: 'post_matric', title: 'Post-Matric Scholarship Scheme', desc: 'For SC/ST/OBC/EBC students in Class 11, 12, ITI, Degree, Diploma & Higher Education.', icon: GraduationCap, tag: 'Government of India', tagColor: '#A78BFA', glowColor: 'rgba(167,139,250,0.35)' },
-  { id: 'central_sector', title: 'Central Sector Scheme of Scholarships', desc: 'For meritorious College and University students with family income under ₹4.5 Lakh.', icon: Landmark, tag: 'Ministry of Education', tagColor: '#22D3EE', glowColor: 'rgba(34,211,238,0.30)' },
-  { id: 'pre_matric', title: 'Pre-Matric Scholarship for Minorities', desc: 'For Minority community students studying in Class 1 to 10 with family income under ₹1.0 Lakh.', icon: BookOpen, tag: 'Ministry of Minority Affairs', tagColor: '#34D399', glowColor: 'rgba(52,211,153,0.30)' },
-  { id: 'state_merit', title: 'State Higher Education Merit Scholarship', desc: 'State-level merit scheme for undergraduate and postgraduate students in technical courses.', icon: Award, tag: 'State Govt Scheme', tagColor: '#F472B6', glowColor: 'rgba(244,114,182,0.30)' },
-];
-
-const STEPS = [
-  { step: '01', title: 'Select Scheme', desc: 'Choose from official national & state scholarship portals.', icon: GraduationCap },
-  { step: '02', title: 'Speak Naturally', desc: 'Live voice dictation in 9 Indian languages — Hindi, Tamil, Telugu & more.', icon: Mic },
-  { step: '03', title: 'AI Extraction', desc: 'Gemini 2.0 Flash structures your spoken data into form fields instantly.', icon: Sparkles },
-  { step: '04', title: 'Submit & Download', desc: 'Review pre-filled form, submit to portal, and download PDF receipt.', icon: CheckCircle2 },
-];
-
-const STATS = [
-  { value: '9+',    label: 'Indian Languages',  grad: 'from-pink-400 via-violet-400 to-pink-400' },
-  { value: '5+',    label: 'Govt Schemes',       grad: 'from-violet-400 via-cyan-400 to-violet-400' },
-  { value: '99.8%', label: 'AI Accuracy',        grad: 'from-cyan-400 via-violet-400 to-cyan-400' },
-  { value: '100%',  label: 'Voice Powered',      grad: 'from-pink-400 via-violet-400 to-cyan-400' },
-];
-
-const ROTATING_WORDS = ['Speak.', 'Fill.', 'Apply.'];
 const fadeUp = { hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0 } };
 const stagger = { show: { transition: { staggerChildren: 0.08 } } };
 
-/* ── Rotating word ────────────────────────────────────────────────────── */
-function RotatingWord() {
+/* ── Rotating word component ────────────────────────────────────────── */
+function RotatingWord({ language }) {
+  const words = useMemo(() => {
+    const w = getTranslation('rotating_words', language);
+    return Array.isArray(w) ? w : ['Speak.', 'Fill.', 'Apply.'];
+  }, [language]);
+
   const [index, setIndex] = useState(0);
+
   useEffect(() => {
-    const interval = setInterval(() => setIndex((p) => (p + 1) % ROTATING_WORDS.length), 2200);
+    setIndex(0);
+    const interval = setInterval(() => setIndex((p) => (p + 1) % words.length), 2200);
     return () => clearInterval(interval);
-  }, []);
+  }, [words]);
+
   return (
-    <span className="inline-block relative w-[4.8ch] h-[1.05em] align-top text-left overflow-hidden">
+    <span className="inline-block relative min-w-[4.8ch] h-[1.05em] align-top text-left overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.span
-          key={ROTATING_WORDS[index]}
+          key={`${language}-${words[index]}`}
           initial={{ y: 20, opacity: 0, rotateX: -40 }}
           animate={{ y: 0, opacity: 1, rotateX: 0 }}
           exit={{ y: -20, opacity: 0, rotateX: 40 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute left-0 top-0 text-gradient-saffron"
+          className="absolute left-0 top-0 text-gradient-saffron whitespace-nowrap"
         >
-          {ROTATING_WORDS[index]}
+          {words[index]}
         </motion.span>
       </AnimatePresence>
     </span>
@@ -65,6 +50,59 @@ export function HomePage() {
   const navigate = useNavigate();
   const { language, setSelectedScheme } = useAppStore();
   const t = (key) => getTranslation(key, language);
+
+  const scholarships = useMemo(() => [
+    {
+      id: 'post_matric',
+      title: t('scheme_post_matric_title'),
+      desc: t('scheme_post_matric_desc'),
+      icon: GraduationCap,
+      tag: t('tag_goi'),
+      tagColor: '#A78BFA',
+      glowColor: 'rgba(167,139,250,0.35)',
+    },
+    {
+      id: 'central_sector',
+      title: t('scheme_central_sector_title'),
+      desc: t('scheme_central_sector_desc'),
+      icon: Landmark,
+      tag: t('tag_moe'),
+      tagColor: '#22D3EE',
+      glowColor: 'rgba(34,211,238,0.30)',
+    },
+    {
+      id: 'pre_matric',
+      title: t('scheme_pre_matric_title'),
+      desc: t('scheme_pre_matric_desc'),
+      icon: BookOpen,
+      tag: t('tag_moma'),
+      tagColor: '#34D399',
+      glowColor: 'rgba(52,211,153,0.30)',
+    },
+    {
+      id: 'state_merit',
+      title: t('scheme_state_merit_title'),
+      desc: t('scheme_state_merit_desc'),
+      icon: Award,
+      tag: t('tag_state'),
+      tagColor: '#F472B6',
+      glowColor: 'rgba(244,114,182,0.30)',
+    },
+  ], [language]);
+
+  const steps = useMemo(() => [
+    { step: '01', title: t('step1_title'), desc: t('step1_sub'), icon: GraduationCap },
+    { step: '02', title: t('step2_title'), desc: t('step2_sub'), icon: Mic },
+    { step: '03', title: t('step3_title'), desc: t('step3_sub'), icon: Sparkles },
+    { step: '04', title: t('step4_title'), desc: t('step4_sub'), icon: CheckCircle2 },
+  ], [language]);
+
+  const stats = useMemo(() => [
+    { value: '9+',    label: t('stat_languages'), grad: 'from-pink-400 via-violet-400 to-pink-400' },
+    { value: '5+',    label: t('stat_schemes'),   grad: 'from-violet-400 via-cyan-400 to-violet-400' },
+    { value: '99.8%', label: t('stat_accuracy'),  grad: 'from-cyan-400 via-violet-400 to-cyan-400' },
+    { value: '100%',  label: t('stat_voice'),     grad: 'from-pink-400 via-violet-400 to-cyan-400' },
+  ], [language]);
 
   const handleSelectScheme = (scheme) => {
     setSelectedScheme(scheme);
@@ -104,7 +142,7 @@ export function HomePage() {
                   backdrop-blur-md shadow-sm"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Powered by Gemini 2.0 Flash AI</span>
+                <span>{t('powered_by_ai')}</span>
               </motion.div>
 
               {/* Headline */}
@@ -112,9 +150,9 @@ export function HomePage() {
                 variants={fadeUp}
                 className="font-heading font-black text-[2.75rem] sm:text-[3.5rem] lg:text-[4.25rem] leading-[1.04] tracking-tighter text-neutral-900 dark:text-white"
               >
-                Voice to Form.{' '}
+                {t('hero_headline')}{' '}
                 <br className="hidden sm:block" />
-                <RotatingWord />
+                <RotatingWord language={language} />
               </motion.h1>
 
               {/* Subtitle */}
@@ -122,8 +160,7 @@ export function HomePage() {
                 variants={fadeUp}
                 className="text-lg sm:text-xl text-neutral-500 dark:text-neutral-300 leading-relaxed max-w-lg font-medium"
               >
-                Apply for government scholarships in your mother tongue.{' '}
-                AI fills the forms — you just speak.
+                {t('hero_sub')}
               </motion.p>
 
               {/* CTA Row */}
@@ -144,9 +181,9 @@ export function HomePage() {
 
               {/* Feature tags */}
               <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-2.5">
-                <span className="badge badge-saffron"><Languages className="w-3.5 h-3.5" /> 9 Languages</span>
-                <span className="badge badge-blue"><Brain className="w-3.5 h-3.5" /> Gemini 2.0 AI</span>
-                <span className="badge badge-green"><FileCheck className="w-3.5 h-3.5" /> Auto Form Fill</span>
+                <span className="badge badge-saffron"><Languages className="w-3.5 h-3.5" /> {t('badge_languages')}</span>
+                <span className="badge badge-blue"><Brain className="w-3.5 h-3.5" /> {t('badge_ai')}</span>
+                <span className="badge badge-green"><FileCheck className="w-3.5 h-3.5" /> {t('badge_auto_fill')}</span>
               </motion.div>
             </motion.div>
 
@@ -173,11 +210,11 @@ export function HomePage() {
                     <div className="w-2.5 h-2.5 rounded-full bg-pink-400" />
                     <div className="w-2.5 h-2.5 rounded-full bg-violet-400" />
                     <div className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
-                    <span className="text-[11px] font-bold text-violet-600 dark:text-violet-300 ml-2">Live Voice Pipeline</span>
+                    <span className="text-[11px] font-bold text-violet-600 dark:text-violet-300 ml-2">{t('live_pipeline')}</span>
                   </div>
                   <div className="flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/25 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Active
+                    {t('active')}
                   </div>
                 </div>
 
@@ -186,7 +223,7 @@ export function HomePage() {
                   <div className="p-4 rounded-2xl bg-violet-50/70 dark:bg-violet-500/[0.08] border border-violet-200/50 dark:border-violet-500/20 backdrop-blur-sm">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[11px] text-violet-700 dark:text-violet-300 font-bold flex items-center gap-1.5">
-                        <Mic className="w-3.5 h-3.5" /> Spoken Input (Hindi)
+                        <Mic className="w-3.5 h-3.5" /> {t('spoken_input')}
                       </span>
                       <div className="flex items-center gap-0.5">
                         {[12, 20, 8, 16, 24, 10, 18].map((h, i) => (
@@ -219,7 +256,7 @@ export function HomePage() {
                   <div className="p-4 rounded-2xl bg-emerald-50/60 dark:bg-emerald-500/[0.06] border border-emerald-200/50 dark:border-emerald-500/20 backdrop-blur-sm">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Extracted Entities
+                        <CheckCircle2 className="w-3.5 h-3.5" /> {t('extracted_entities')}
                       </span>
                       <span className="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-black text-[10px]">99.8%</span>
                     </div>
@@ -243,10 +280,10 @@ export function HomePage() {
                 <div className="flex items-center justify-between text-[10px] text-neutral-400 dark:text-neutral-500 pt-3 mt-3 border-t border-violet-200/30 dark:border-violet-400/10">
                   <span className="flex items-center gap-1">
                     <Zap className="w-3 h-3 text-violet-400" />
-                    Latency: <strong className="text-neutral-700 dark:text-white">~0.35s</strong>
+                    {t('latency_label')}: <strong className="text-neutral-700 dark:text-white">~0.35s</strong>
                   </span>
                   <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-                    <Shield className="w-3 h-3" /> Client-Side Private
+                    <Shield className="w-3 h-3" /> {t('client_private')}
                   </span>
                 </div>
               </div>
@@ -270,7 +307,7 @@ export function HomePage() {
           <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-pink-400/60 via-violet-400/80 to-cyan-400/60" />
 
           <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-violet-200/40 dark:divide-violet-400/10 text-center">
-            {STATS.map((s, i) => (
+            {stats.map((s, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 14 }}
@@ -305,65 +342,64 @@ export function HomePage() {
           <motion.p variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }}
             className="text-base text-neutral-500 dark:text-neutral-400 max-w-md mx-auto"
           >
-            From spoken voice to verified government application in 4 steps
+            {t('how_it_works_sub')}
           </motion.p>
         </div>
 
-        {/* Step cards — no overlapping connector line */}
+        {/* Step cards — clean and modern */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 relative">
-          {STEPS.map((s, idx) => {
+          {steps.map((s, idx) => {
             const Icon = s.icon;
             return (
-              <React.Fragment key={idx}>
-                <motion.div
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: idx * 0.10 }}
-                  whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                  className="group relative p-6 rounded-2xl cursor-default overflow-hidden
-                    glass-card glass-card-aurora"
-                >
-                  {/* Aurora glow orb on hover */}
-                  <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full
-                    bg-gradient-to-br from-violet-400/0 to-pink-400/0
-                    group-hover:from-violet-400/18 group-hover:to-pink-400/12
-                    blur-2xl transition-all duration-500 pointer-events-none" />
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.10 }}
+                whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                className="group relative p-6 rounded-2xl cursor-default overflow-hidden
+                  glass-card glass-card-aurora"
+              >
+                {/* Aurora glow orb on hover */}
+                <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full
+                  bg-gradient-to-br from-violet-400/0 to-pink-400/0
+                  group-hover:from-violet-400/18 group-hover:to-pink-400/12
+                  blur-2xl transition-all duration-500 pointer-events-none" />
 
-                  {/* Icon row with step badge */}
-                  <div className="flex items-center justify-between mb-5">
-                    <div className="relative w-12 h-12 rounded-xl flex items-center justify-center
-                      bg-violet-100/60 dark:bg-violet-500/[0.12] text-violet-600 dark:text-violet-300
-                      group-hover:bg-gradient-to-r group-hover:from-pink-500 group-hover:via-violet-500 group-hover:to-cyan-500
-                      group-hover:text-white group-hover:shadow-lg group-hover:shadow-violet-500/30
-                      transition-all duration-300">
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    {/* Step pill badge — top right, clean */}
-                    <span className="text-[10px] font-black tracking-widest px-2 py-1 rounded-full
-                      bg-violet-100/70 dark:bg-violet-500/[0.12]
-                      text-violet-500 dark:text-violet-400
-                      border border-violet-300/40 dark:border-violet-500/20
-                      backdrop-blur-sm">
-                      {s.step}
-                    </span>
+                {/* Icon row with step badge */}
+                <div className="flex items-center justify-between mb-5">
+                  <div className="relative w-12 h-12 rounded-xl flex items-center justify-center
+                    bg-violet-100/60 dark:bg-violet-500/[0.12] text-violet-600 dark:text-violet-300
+                    group-hover:bg-gradient-to-r group-hover:from-pink-500 group-hover:via-violet-500 group-hover:to-cyan-500
+                    group-hover:text-white group-hover:shadow-lg group-hover:shadow-violet-500/30
+                    transition-all duration-300">
+                    <Icon className="w-5 h-5" />
                   </div>
+                  {/* Step pill badge — top right, clean */}
+                  <span className="text-[10px] font-black tracking-widest px-2 py-1 rounded-full
+                    bg-violet-100/70 dark:bg-violet-500/[0.12]
+                    text-violet-500 dark:text-violet-400
+                    border border-violet-300/40 dark:border-violet-500/20
+                    backdrop-blur-sm">
+                    {s.step}
+                  </span>
+                </div>
 
-                  <h3 className="font-bold text-[15px] text-neutral-900 dark:text-white mb-2
-                    group-hover:text-violet-500 dark:group-hover:text-violet-400 transition-colors">
-                    {s.title}
-                  </h3>
-                  <p className="text-[13px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
-                    {s.desc}
-                  </p>
+                <h3 className="font-bold text-[15px] text-neutral-900 dark:text-white mb-2
+                  group-hover:text-violet-500 dark:group-hover:text-violet-400 transition-colors">
+                  {s.title}
+                </h3>
+                <p className="text-[13px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                  {s.desc}
+                </p>
 
-                  {/* Bottom step indicator line */}
-                  <div className="absolute bottom-0 inset-x-0 h-[2px] rounded-b-2xl
-                    bg-gradient-to-r from-pink-400/0 via-violet-400/0 to-cyan-400/0
-                    group-hover:from-pink-400/60 group-hover:via-violet-400/80 group-hover:to-cyan-400/60
-                    transition-all duration-400" />
-                </motion.div>
-              </React.Fragment>
+                {/* Bottom step indicator line */}
+                <div className="absolute bottom-0 inset-x-0 h-[2px] rounded-b-2xl
+                  bg-gradient-to-r from-pink-400/0 via-violet-400/0 to-cyan-400/0
+                  group-hover:from-pink-400/60 group-hover:via-violet-400/80 group-hover:to-cyan-400/60
+                  transition-all duration-400" />
+              </motion.div>
             );
           })}
         </div>
@@ -379,17 +415,17 @@ export function HomePage() {
               {t('govt_schemes_title')}
             </motion.h2>
             <p className="text-base text-neutral-500 dark:text-neutral-400 mt-2">
-              Select a scholarship to start voice-assisted application
+              {t('govt_schemes_sub')}
             </p>
           </div>
           <button onClick={() => navigate('/schemes')} className="btn-secondary text-sm self-start sm:self-auto whitespace-nowrap group">
-            View All Portals
+            {t('view_all_portals')}
             <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {SCHOLARSHIPS.map((scheme, idx) => {
+          {scholarships.map((scheme, idx) => {
             const Icon = scheme.icon;
             return (
               <motion.div
@@ -402,15 +438,14 @@ export function HomePage() {
                 onClick={() => handleSelectScheme(scheme)}
                 className="group relative flex flex-col cursor-pointer overflow-hidden rounded-2xl
                   glass-card glass-card-aurora"
-                style={{ '--hover-glow': scheme.glowColor }}
               >
-                {/* Aurora glow halo on hover (unique per card) */}
+                {/* Aurora glow halo on hover */}
                 <div
                   className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none"
                   style={{ boxShadow: `0 0 40px -8px ${scheme.glowColor}` }}
                 />
 
-                {/* Top accent bar — aurora gradient */}
+                {/* Left accent bar — aurora gradient */}
                 <div
                   className="absolute inset-y-0 left-0 w-1 rounded-l-2xl group-hover:w-1.5 transition-all duration-300"
                   style={{ background: `linear-gradient(to bottom, ${scheme.tagColor}, transparent)` }}
@@ -448,10 +483,10 @@ export function HomePage() {
 
                   <div className="flex items-center justify-between pt-3 border-t border-violet-200/30 dark:border-violet-400/10">
                     <span className="text-[13px] font-bold text-violet-500 dark:text-violet-400 flex items-center gap-1.5 group-hover:gap-2.5 transition-all duration-300">
-                      Start Voice Form
+                      {t('start_voice_form')}
                       <ArrowRight className="w-3.5 h-3.5" />
                     </span>
-                    <span className="text-[11px] text-neutral-400 dark:text-neutral-500 font-medium">FY 2025–26</span>
+                    <span className="text-[11px] text-neutral-400 dark:text-neutral-500 font-medium">{t('academic_year')}</span>
                   </div>
                 </div>
               </motion.div>
