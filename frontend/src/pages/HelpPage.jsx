@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronDown,
@@ -7,60 +7,12 @@ import {
   Mic,
   ShieldCheck,
   PenLine,
-  Volume2,
   Lightbulb,
   Sparkles,
   HelpCircle,
 } from 'lucide-react';
-
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-const FAQS = [
-  {
-    q: 'How does voice form filling work in FormMitra?',
-    a: 'You simply speak naturally in any of the 9 supported Indian languages (Hindi, Odia, Tamil, Telugu, Bengali, Marathi, Kannada, Malayalam, English). The browser transcribes your speech, and Gemini 2.0 Flash AI automatically extracts your name, city, course, year, and income into the appropriate scholarship form fields.',
-  },
-  {
-    q: 'What is Aadhaar DBT Seeding and why is it mandatory?',
-    a: 'Direct Benefit Transfer (DBT) sends scholarship funds directly into your bank account without middlemen. Your bank account must be mapped with your Aadhaar number at your bank branch or via the NPCI portal.',
-  },
-  {
-    q: 'Can I edit the pre-filled fields before final submission?',
-    a: 'Yes! After voice extraction, Step 4 (Form Review) presents all populated fields for verification. You can modify any text, date, category or dropdown before previewing and confirming.',
-  },
-  {
-    q: 'Is my voice recording stored or shared with external parties?',
-    a: 'No. Audio dictation is processed strictly for entity extraction and is never sold or used for commercial training. FormMitra follows government digital privacy standards.',
-  },
-  {
-    q: 'What should I do if my speech is not recognized accurately?',
-    a: 'Ensure you are in a quiet room, speak clearly close to the microphone, or use the "Load Sample" button to test the AI workflow. You can also directly type or correct words in the transcript box.',
-  },
-];
-
-const TIPS = [
-  {
-    icon: Mic,
-    color: 'text-violet-400',
-    bg: 'bg-violet-500/15',
-    title: 'Speak Clearly',
-    body: 'Use a quiet space and speak close to the mic. Avoid background noise for best recognition accuracy.',
-  },
-  {
-    icon: PenLine,
-    color: 'text-cyan-400',
-    bg: 'bg-cyan-500/15',
-    title: 'Review Before Submit',
-    body: 'Always double-check auto-filled fields in Step 4. AI is accurate but a quick scan prevents errors.',
-  },
-  {
-    icon: ShieldCheck,
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/15',
-    title: 'Keep Aadhaar Handy',
-    body: 'Have your Aadhaar and bank details ready. DBT seeding is required for all scholarship disbursements.',
-  },
-];
+import { useAppStore } from '../store/useAppStore';
+import { getTranslation } from '../utils/translations';
 
 // ─── FAQ Accordion Item ───────────────────────────────────────────────────────
 
@@ -117,7 +69,28 @@ function AccordionItem({ faq, index, openIndex, setOpenIndex }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function HelpPage() {
+  const { language } = useAppStore();
+  const t = (key) => getTranslation(key, language);
   const [openIndex, setOpenIndex] = useState(0);
+
+  const faqs = useMemo(() => {
+    const list = getTranslation('faqs', language);
+    return Array.isArray(list) && list.length > 0 ? list : getTranslation('faqs', 'English');
+  }, [language]);
+
+  const tips = useMemo(() => {
+    const list = getTranslation('tips', language);
+    const resolved = Array.isArray(list) && list.length > 0 ? list : getTranslation('tips', 'English');
+    const icons = [
+      { icon: Mic, color: 'text-violet-400', bg: 'bg-violet-500/15' },
+      { icon: PenLine, color: 'text-cyan-400', bg: 'bg-cyan-500/15' },
+      { icon: ShieldCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/15' },
+    ];
+    return resolved.map((tip, idx) => ({
+      ...tip,
+      ...icons[idx % icons.length],
+    }));
+  }, [language]);
 
   return (
     <div className="relative min-h-[85vh] overflow-hidden pb-16">
@@ -140,15 +113,14 @@ export function HelpPage() {
             text-violet-700 dark:text-violet-300 text-xs font-semibold
             backdrop-blur-md shadow-sm">
             <HelpCircle className="w-3.5 h-3.5" />
-            <span>Support & Guidance</span>
+            <span>{t('help_badge')}</span>
           </div>
 
           <h1 className="font-heading font-black text-3xl sm:text-4xl lg:text-5xl text-neutral-900 dark:text-white tracking-tight">
-            Helpdesk &amp; FAQ
+            {t('help_title')}
           </h1>
           <p className="text-sm sm:text-base text-neutral-500 dark:text-neutral-300 leading-relaxed font-medium">
-            Everything you need to know about AI voice form filling and
-            government scholarship guidelines.
+            {t('help_sub')}
           </p>
         </div>
 
@@ -160,13 +132,13 @@ export function HelpPage() {
             </div>
             <div>
               <span className="text-[10px] font-bold text-violet-500 dark:text-violet-400 uppercase tracking-widest block mb-0.5">
-                National Helpline (Toll-Free)
+                {t('helpline_label')}
               </span>
               <div className="font-heading font-black text-lg text-neutral-900 dark:text-white tracking-tight">
                 1800-11-2026 / 0120-6619540
               </div>
               <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
-                Mon – Sat: 9:00 AM to 6:00 PM IST
+                {t('helpline_hours')}
               </p>
             </div>
           </div>
@@ -177,13 +149,13 @@ export function HelpPage() {
             </div>
             <div>
               <span className="text-[10px] font-bold text-cyan-500 dark:text-cyan-400 uppercase tracking-widest block mb-0.5">
-                Email Support &amp; Grievances
+                {t('email_support_label')}
               </span>
               <div className="font-heading font-bold text-base text-neutral-900 dark:text-white">
                 helpdesk@formmitra.gov.in
               </div>
               <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
-                Response within 24 business hours
+                {t('email_response_time')}
               </p>
             </div>
           </div>
@@ -194,12 +166,12 @@ export function HelpPage() {
           <div className="flex items-center gap-2">
             <Lightbulb className="w-4 h-4 text-violet-400" />
             <h2 className="font-heading font-bold text-xs uppercase tracking-widest text-violet-500 dark:text-violet-300">
-              Frequently Asked Questions
+              {t('faq_heading')}
             </h2>
           </div>
 
           <div className="space-y-3.5">
-            {FAQS.map((faq, idx) => (
+            {faqs.map((faq, idx) => (
               <AccordionItem
                 key={idx}
                 faq={faq}
@@ -216,12 +188,12 @@ export function HelpPage() {
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-violet-400" />
             <h2 className="font-heading font-bold text-xs uppercase tracking-widest text-violet-500 dark:text-violet-300">
-              Pro Tips for Best Results
+              {t('tips_heading')}
             </h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {TIPS.map((tip) => {
+            {tips.map((tip) => {
               const Icon = tip.icon;
               return (
                 <div

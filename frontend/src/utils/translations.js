@@ -70,6 +70,51 @@ export const TRANSLATIONS = {
     nav_help: 'Help & FAQ',
     login_title: 'Welcome to FormMitra',
     register_title: 'Create Student Account',
+    help_badge: 'Support & Guidance',
+    help_title: 'Helpdesk & FAQ',
+    help_sub: 'Everything you need to know about AI voice form filling and government scholarship guidelines.',
+    helpline_label: 'National Helpline (Toll-Free)',
+    helpline_hours: 'Mon – Sat: 9:00 AM to 6:00 PM IST',
+    email_support_label: 'Email Support & Grievances',
+    email_response_time: 'Response within 24 business hours',
+    faq_heading: 'Frequently Asked Questions',
+    tips_heading: 'Pro Tips for Best Results',
+    faqs: [
+      {
+        q: 'How does voice form filling work in FormMitra?',
+        a: 'You simply speak naturally in any of the 9 supported Indian languages (Hindi, Odia, Tamil, Telugu, Bengali, Marathi, Kannada, Malayalam, English). The browser transcribes your speech, and Gemini 2.0 Flash AI automatically extracts your name, city, course, year, and income into the appropriate scholarship form fields.',
+      },
+      {
+        q: 'What is Aadhaar DBT Seeding and why is it mandatory?',
+        a: 'Direct Benefit Transfer (DBT) sends scholarship funds directly into your bank account without middlemen. Your bank account must be mapped with your Aadhaar number at your bank branch or via the NPCI portal.',
+      },
+      {
+        q: 'Can I edit the pre-filled fields before final submission?',
+        a: 'Yes! After voice extraction, Step 4 (Form Review) presents all populated fields for verification. You can modify any text, date, category or dropdown before previewing and confirming.',
+      },
+      {
+        q: 'Is my voice recording stored or shared with external parties?',
+        a: 'No. Audio dictation is processed strictly for entity extraction and is never sold or used for commercial training. FormMitra follows government digital privacy standards.',
+      },
+      {
+        q: 'What should I do if my speech is not recognized accurately?',
+        a: 'Ensure you are in a quiet room, speak clearly close to the microphone, or use the "Load Sample" button to test the AI workflow. You can also directly type or correct words in the transcript box.',
+      },
+    ],
+    tips: [
+      {
+        title: 'Speak Clearly',
+        body: 'Use a quiet space and speak close to the mic. Avoid background noise for best recognition accuracy.',
+      },
+      {
+        title: 'Review Before Submit',
+        body: 'Always double-check auto-filled fields in Step 4. AI is accurate but a quick scan prevents errors.',
+      },
+      {
+        title: 'Keep Aadhaar Handy',
+        body: 'Have your Aadhaar and bank details ready. DBT seeding is required for all scholarship disbursements.',
+      },
+    ],
   },
   Hindi: {
     app_title: 'भारत फॉर्ममित्र',
@@ -128,6 +173,51 @@ export const TRANSLATIONS = {
     nav_help: 'सहायता',
     login_title: 'फॉर्ममित्र में लॉगिन करें',
     register_title: 'नया खाता बनाएं',
+    help_badge: 'सहायता एवं मार्गदर्शन',
+    help_title: 'हेल्पडेस्क एवं अक्सर पूछे जाने वाले प्रश्न',
+    help_sub: 'एआई वॉयस फॉर्म भरने और सरकारी छात्रवृत्ति दिशा-निर्देशों के बारे में पूरी जानकारी।',
+    helpline_label: 'राष्ट्रीय हेल्पलाइन (टोल-फ्री)',
+    helpline_hours: 'सोम – शनि: सुबह 9:00 से शाम 6:00 बजे तक',
+    email_support_label: 'ईमेल सहायता एवं शिकायत निवारण',
+    email_response_time: '24 कार्य घंटों के भीतर समाधान',
+    faq_heading: 'अक्सर पूछे जाने वाले प्रश्न (FAQ)',
+    tips_heading: 'सर्वोत्तम परिणामों के लिए महत्वपूर्ण सुझाव',
+    faqs: [
+      {
+        q: 'फॉर्ममित्र में वॉयस फॉर्म भरना कैसे काम करता है?',
+        a: 'आप समर्थित 9 भारतीय भाषाओं में सामान्य रूप से बोलते हैं। ब्राउज़र आपकी आवाज को पहचानता है और जेमिनी 2.0 फ्लैश एआई आपका नाम, शहर, पाठ्यक्रम, वर्ष और आय निकालकर छात्रवृत्ति फॉर्म में अपने-आप भर देता है।',
+      },
+      {
+        q: 'आधार डीबीटी सीडिंग क्या है और यह क्यों अनिवार्य है?',
+        a: 'डायरेक्ट बेनिफिट ट्रांसफर (DBT) से छात्रवृत्ति का पैसा सीधे आपके बैंक खाते में बिना किसी बिचौलिए के पहुंचता है। इसके लिए आपका बैंक खाता आधार से लिंक होना अनिवार्य है।',
+      },
+      {
+        q: 'क्या मैं फॉर्म जमा करने से पहले भरी गई जानकारी बदल सकता हूँ?',
+        a: 'हाँ! वॉयस एक्सट्रैक्शन के बाद फॉर्म रिव्यू पेज पर आप किसी भी जानकारी को आसानी से संपादित या संशोधित कर सकते हैं।',
+      },
+      {
+        q: 'क्या मेरी आवाज की रिकॉर्डिंग सुरक्षित है?',
+        a: 'बिल्कुल। आपकी आवाज का उपयोग केवल फॉर्म भरने के लिए होता है और यह सरकारी गोपनीयता मानकों के तहत पूरी तरह सुरक्षित है।',
+      },
+      {
+        q: 'यदि मेरी आवाज सही से समझ न आए तो क्या करें?',
+        a: 'कृपया शांत स्थान पर बोलें और माइक के पास रहें। आप सीधे टेक्स्ट बॉक्स में सुधार भी कर सकते हैं या लोड सैंपल का उपयोग कर सकते हैं।',
+      },
+    ],
+    tips: [
+      {
+        title: 'स्पष्ट आवाज में बोलें',
+        body: 'शांत स्थान पर रहें और माइक के पास बोलें ताकि एआई हर शब्द को सही पहचान सके।',
+      },
+      {
+        title: 'सबमिट करने से पहले जांचें',
+        body: 'फॉर्म जमा करने से पहले सभी भरे गए विवरणों की एक बार समीक्षा अवश्य करें।',
+      },
+      {
+        title: 'आधार व बैंक खाता तैयार रखें',
+        body: 'डीबीटी छात्रवृत्ति राशि सीधे आपके आधार से जुड़े बैंक खाते में आएगी।',
+      },
+    ],
   },
   Odia: {
     app_title: 'ଫର୍ମମିତ୍ର (FormMitra)',
@@ -186,6 +276,29 @@ export const TRANSLATIONS = {
     nav_help: 'ସହାୟତା',
     login_title: 'ଲଗ୍ ଇନ୍ କରନ୍ତୁ',
     register_title: 'ନୂତନ ଖାତା ଖୋଲନ୍ତୁ',
+    help_badge: 'ସହାୟତା ଓ ମାର୍ଗଦର୍ଶନ',
+    help_title: 'ହେଲ୍ପଡେସ୍କ ଓ ପ୍ରଶ୍ନୋତ୍ତର',
+    help_sub: 'ଏଆଇ ଭଏସ୍ ଫର୍ମ ଏବଂ ସରକାରୀ ଛାତ୍ରବୃତ୍ତି ନିୟମ ବିଷୟରେ ସବୁକିଛି ଜାଣନ୍ତୁ।',
+    helpline_label: 'ଜାତୀୟ ହେଲ୍ପଲାଇନ୍ (ଟୋଲ୍-ଫ୍ରି)',
+    helpline_hours: 'ସୋମ – ଶନି: ସକାଳ ୯ ରୁ ସନ୍ଧ୍ୟା ୬',
+    email_support_label: 'ଇମେଲ୍ ସହାୟତା',
+    email_response_time: '୨୪ ଘଣ୍ଟା ମଧ୍ୟରେ ଉତ୍ତର',
+    faq_heading: 'ବାରମ୍ବାର ପଚରାଯାଉଥିବା ପ୍ରଶ୍ନ',
+    tips_heading: 'ଉନ୍ନତ ଫଳାଫଳ ପାଇଁ ପରାମର୍ଶ',
+    faqs: [
+      {
+        q: 'ଫର୍ମମିତ୍ରରେ ଭଏସ୍ ଫର୍ମ କିପରି କାମ କରେ?',
+        a: 'ଆପଣ ନିଜ ଭାଷାରେ କୁହନ୍ତି ଏବଂ ଜେମିନି ୨.୦ ଏଆଇ ଆପଣଙ୍କ ତଥ୍ୟକୁ ସ୍ୱୟଂଚାଳିତ ଭାବରେ ଫର୍ମରେ ପୂରଣ କରେ।',
+      },
+      {
+        q: 'ଆଧାର ଡିବିଟି ସିଡିଂ କାହିଁକି ଜରୁରୀ?',
+        a: 'ଛାତ୍ରବୃତ୍ତି ଟଙ୍କା ସିଧାସଳଖ ଆପଣଙ୍କ ବ୍ୟାଙ୍କ ଆକାଉଣ୍ଟକୁ ପଠାଇବା ପାଇଁ ଏହା ବାଧ୍ୟତାମୂଳକ।',
+      },
+    ],
+    tips: [
+      { title: 'ସ୍ପଷ୍ଟ ଭାବରେ କୁହନ୍ତୁ', body: 'ଶାନ୍ତ ସ୍ଥାନରେ ରହି କୁହନ୍ତୁ।' },
+      { title: 'ସବମିଟ୍ ପୂର୍ବରୁ ଯାଞ୍ଚ କରନ୍ତୁ', body: 'ସମସ୍ତ ତଥ୍ୟ ଠିକ୍ ଅଛି କି ନାହିଁ ଦେଖନ୍ତୁ।' },
+    ],
   },
   Tamil: {
     app_title: 'பார்ம்மித்ரா',
@@ -244,6 +357,29 @@ export const TRANSLATIONS = {
     nav_help: 'உதவி',
     login_title: 'உள்நுழைக',
     register_title: 'பதிவு செய்க',
+    help_badge: 'உதவி மற்றும் வழிகாட்டுதல்',
+    help_title: 'உதவி மையம் & அடிக்கடி கேட்கப்படும் கேள்விகள்',
+    help_sub: 'குரல் படிவம் மற்றும் அரசு உதவித்தொகை வழிகாட்டுதல்கள் பற்றிய முழு விவரங்கள்.',
+    helpline_label: 'தேசிய உதவி எண் (கட்டணமில்லா)',
+    helpline_hours: 'திங்கள் – சனி: காலை 9:00 முதல் மாலை 6:00 வரை',
+    email_support_label: 'மின்னஞ்சல் உதவி',
+    email_response_time: '24 மணி நேரத்திற்குள் தீர்வு',
+    faq_heading: 'அடிக்கடி கேட்கப்படும் கேள்விகள் (FAQ)',
+    tips_heading: 'சிறந்த வழிகாட்டுதல்கள்',
+    faqs: [
+      {
+        q: 'பார்ம்மித்ராவில் குரல் வழி படிவம் எவ்வாறு செயல்படுகிறது?',
+        a: 'நீங்கள் தமிழில் பேசினால் ஜெமினி 2.0 AI உங்கள் விவரங்களை உடனடியாக படிவத்தில் நிரப்பும்.',
+      },
+      {
+        q: 'ஆதார் DBT இணைப்பு ஏன் கட்டாயம்?',
+        a: 'உதவித்தொகை தொகை நேரடியாக உங்கள் வங்கிக் கணக்கில் வரவு வைக்கப்பட இது அவசியம்.',
+      },
+    ],
+    tips: [
+      { title: 'தெளிவாகப் பேசுங்கள்', body: 'சத்தமில்லாத இடத்தில் இருந்து பேசவும்.' },
+      { title: 'சரிபார்க்கவும்', body: 'சமர்ப்பிக்கும் முன் தகவல்களை சரிபார்க்கவும்.' },
+    ],
   },
   Telugu: {
     app_title: 'ఫామ్‌మిత్ర',
@@ -302,6 +438,24 @@ export const TRANSLATIONS = {
     nav_help: 'సహాయం',
     login_title: 'లాగిన్ చేయండి',
     register_title: 'ఖాతాను సృష్టించండి',
+    help_badge: 'సహాయం మరియు మార్గదర్శకత్వం',
+    help_title: 'హెల్ప్‌డెస్క్ & తరచుగా అడిగే ప్రశ్నలు',
+    help_sub: 'వాయిస్ ఫారం మరియు ప్రభుత్వ స్కాలర్‌షిప్ మార్గదర్శకాలపై పూర్తి వివరాలు.',
+    helpline_label: 'జాతీయ హెల్ప్‌లైన్ (టోల్-ఫ్రీ)',
+    helpline_hours: 'సోమ – శని: ఉదయం 9:00 నుండి సాయంత్రం 6:00 వరకు',
+    email_support_label: 'ఇమెయిల్ మద్దతు',
+    email_response_time: '24 గంటల్లో పరిష్కారం',
+    faq_heading: 'తరచుగా అడిగే ప్రశ్నలు (FAQ)',
+    tips_heading: 'ఉత్తమ ఫలితాల కోసం చిట్కాలు',
+    faqs: [
+      {
+        q: 'ఫామ్‌మిత్రలో వాయిస్ దరఖాస్తు ఎలా పనిచేస్తుంది?',
+        a: 'మీరు మాట్లాడితే జెమిని 2.0 AI మీ వివరాలను స్వయంచాలకంగా ఫారంలో నమోదు చేస్తుంది.',
+      },
+    ],
+    tips: [
+      { title: 'స్పష్టంగా మాట్లాడండి', body: 'ప్రశాంతమైన ప్రదేశంలో మాట్లాడండి.' },
+    ],
   },
   Bengali: {
     app_title: 'ফর্মমিত্র',
@@ -360,6 +514,24 @@ export const TRANSLATIONS = {
     nav_help: 'সহায়তা',
     login_title: 'লগইন করুন',
     register_title: 'অ্যাকাউন্ট খুলুন',
+    help_badge: 'সহায়তা ও নির্দেশিকা',
+    help_title: 'হেল্পডেস্ক ও প্রশ্নোত্তর',
+    help_sub: 'ভয়েস ফর্ম এবং সরকারি স্কলারশিপ নিয়মাবলী সম্পর্কিত সমস্ত তথ্য।',
+    helpline_label: 'জাতীয় হেল্পলাইন (টোল-ফ্রি)',
+    helpline_hours: 'সোম – শনি: সকাল ৯:০০ থেকে সন্ধ্যা ৬:০০',
+    email_support_label: 'ইমেল সহায়তা',
+    email_response_time: '২৪ ঘণ্টার মধ্যে সমাধান',
+    faq_heading: 'সচরাচর জিজ্ঞাস্য প্রশ্নাবলী (FAQ)',
+    tips_heading: 'সেরা ফলাফলের জন্য পরামর্শ',
+    faqs: [
+      {
+        q: 'ফর্মমিত্রতে কীভাবে ভয়েস ফর্ম পূরণ হয়?',
+        a: 'আপনি মুখে বাংলায় তথ্য দিলে জেমিনি ২.০ এআই স্বয়ংক্রিয়ভাবে ফর্মে তা পূরণ করে দেয়।',
+      },
+    ],
+    tips: [
+      { title: 'পরিষ্কারভাবে বলুন', body: 'শান্ত পরিবেশে কথা বলুন।' },
+    ],
   },
   Marathi: {
     app_title: 'फॉर्ममित्र',
@@ -418,6 +590,24 @@ export const TRANSLATIONS = {
     nav_help: 'मदत',
     login_title: 'लॉगिन करा',
     register_title: 'नोंदणी करा',
+    help_badge: 'मदत आणि मार्गदर्शन',
+    help_title: 'हेल्पडेस्क आणि वारंवार विचारले जाणारे प्रश्न',
+    help_sub: 'व्हॉइस फॉर्म आणि सरकारी शिष्यवृत्ती मार्गदर्शक तत्त्वांबद्दल संपूर्ण माहिती.',
+    helpline_label: 'राष्ट्रीय हेल्पलाइन (टोल-फ्री)',
+    helpline_hours: 'सोम – शनि: सकाळी ९:०० ते संध्याकाळी ६:००',
+    email_support_label: 'ईमेल सपोर्ट',
+    email_response_time: '२४ तासांत निवारण',
+    faq_heading: 'वारंवार विचारले जाणारे प्रश्न (FAQ)',
+    tips_heading: 'महत्त्वाच्या टिप्स',
+    faqs: [
+      {
+        q: 'फॉर्ममित्रमध्ये व्हॉइस फॉर्म कसा भरला जातो?',
+        a: 'तुम्ही मराठीत माहिती सांगितल्यावर जेमिनी २.० एआय आपोआप फॉर्ममध्ये माहिती भरते.',
+      },
+    ],
+    tips: [
+      { title: 'स्पष्ट बोला', body: 'शांत जागेत बोला.' },
+    ],
   },
   Kannada: {
     app_title: 'ಫಾರ್ಮ್‌ಮಿತ್ರ',
@@ -476,6 +666,24 @@ export const TRANSLATIONS = {
     nav_help: 'ಸಹಾಯ',
     login_title: 'ಲಾಗಿನ್ ಮಾಡಿ',
     register_title: 'ಖಾತೆ ತೆರೆಯಿರಿ',
+    help_badge: 'ಸಹಾಯ ಮತ್ತು ಮಾರ್ಗದರ್ಶನ',
+    help_title: 'ಹೆಲ್ಪ್‌ಡೆಸ್ಕ್ ಮತ್ತು ಸಾಮಾನ್ಯ ಪ್ರಶ್ನೆಗಳು',
+    help_sub: 'ಧ್ವನಿ ಅರ್ಜಿ ಮತ್ತು ಸರ್ಕಾರಿ ವಿದ್ಯಾರ್ಥಿವೇತನ ಮಾರ್ಗಸೂಚಿಗಳ ಬಗ್ಗೆ ವಿವರಗಳು.',
+    helpline_label: 'ರಾಷ್ಟ್ರೀಯ ಸಹಾಯವಾಣಿ (ಟೋಲ್-ಫ್ರೀ)',
+    helpline_hours: 'ಸೋಮ – ಶನಿ: ಬೆಳಗ್ಗೆ 9:00 ರಿಂದ ಸಂಜೆ 6:00',
+    email_support_label: 'ಇಮೇಲ್ ಬೆಂಬಲ',
+    email_response_time: '24 ಗಂಟೆಗಳಲ್ಲಿ ಪರಿಹಾರ',
+    faq_heading: 'ಸಾಮಾನ್ಯ ಪ್ರಶ್ನೆಗಳು (FAQ)',
+    tips_heading: 'ಉತ್ತಮ ಸಲಹೆಗಳು',
+    faqs: [
+      {
+        q: 'ಫಾರ್ಮ್‌ಮಿತ್ರದಲ್ಲಿ ಧ್ವನಿ ಅರ್ಜಿ ಹೇಗೆ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ?',
+        a: 'ನೀವು ಮಾತನಾಡಿದರೆ ಜೆಮಿನಿ 2.0 AI ಸ್ವಯಂಚಾಲಿತವಾಗಿ ವಿವರಗಳನ್ನು ಫಾರ್ಮ್‌ನಲ್ಲಿ ಭರ್ತಿ ಮಾಡುತ್ತದೆ.',
+      },
+    ],
+    tips: [
+      { title: 'ಸ್ಪಷ್ಟವಾಗಿ ಮಾತನಾಡಿ', body: 'ಶಾಂತ ಸ್ಥಳದಲ್ಲಿ ಮಾತನಾಡಿ.' },
+    ],
   },
   Malayalam: {
     app_title: 'ഫോംമിത്ര',
@@ -534,6 +742,24 @@ export const TRANSLATIONS = {
     nav_help: 'സഹായം',
     login_title: 'ലോഗിൻ ചെയ്യുക',
     register_title: 'അക്കൗണ്ട് സൃഷ്ടിക്കുക',
+    help_badge: 'സഹായവും മാർഗ്ഗനിർദ്ദേശവും',
+    help_title: 'ഹെൽപ്പ് ഡെസ്കും പതിവുചോദ്യങ്ങളും',
+    help_sub: 'വോയ്‌സ് ഫോമുകളെക്കുറിച്ചും സർക്കാർ സ്കോളർഷിപ്പുകളെക്കുറിച്ചുമുള്ള വിവരങ്ങൾ.',
+    helpline_label: 'ദേശീയ ഹെൽപ്പ് ലൈൻ (ടോൾ ഫ്രീ)',
+    helpline_hours: 'തിങ്കൾ – ശനി: രാവിലെ 9:00 മുതൽ വൈകുന്നേരം 6:00 വരെ',
+    email_support_label: 'ഇമെയിൽ പിന്തുണ',
+    email_response_time: '24 മണിക്കൂറിനുള്ളിൽ മറുപടി',
+    faq_heading: 'പതിവായി ചോദിക്കുന്ന ചോദ്യങ്ങൾ (FAQ)',
+    tips_heading: 'പ്രധാന നുറുങ്ങുകൾ',
+    faqs: [
+      {
+        q: 'ഫോംമിത്രയിൽ വോയ്‌സ് ഫോം എങ്ങനെ പ്രവർത്തിക്കുന്നു?',
+        a: 'നിങ്ങൾ മലയാളത്തിൽ സംസാരിക്കുമ്പോൾ ജെമിനി 2.0 AI വിവരങ്ങൾ തത്സമയം ഫോമിൽ ചേർക്കുന്നു.',
+      },
+    ],
+    tips: [
+      { title: 'വ്യക്തമായി സംസാരിക്കൂ', body: 'ശബ്ദമില്ലാത്ത സ്ഥലത്ത് സംസാരിക്കൂ.' },
+    ],
   },
 };
 
