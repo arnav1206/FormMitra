@@ -2,5 +2,5 @@
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "alias": ["formmitra-india.vercel.app"]
+  "alias": ["formitra.vercel.app"]
 }
