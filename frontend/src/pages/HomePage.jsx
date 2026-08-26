@@ -309,16 +309,13 @@ export function HomePage() {
           </motion.p>
         </div>
 
-        <div className="relative">
-          {/* Aurora gradient connector line */}
-          <div aria-hidden className="hidden lg:block aurora-connector" />
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 relative z-10">
-            {STEPS.map((s, idx) => {
-              const Icon = s.icon;
-              return (
+        {/* Step cards — no overlapping connector line */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 relative">
+          {STEPS.map((s, idx) => {
+            const Icon = s.icon;
+            return (
+              <React.Fragment key={idx}>
                 <motion.div
-                  key={idx}
                   initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -328,33 +325,60 @@ export function HomePage() {
                     glass-card glass-card-aurora"
                 >
                   {/* Aurora glow orb on hover */}
-                  <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full
+                  <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full
                     bg-gradient-to-br from-violet-400/0 to-pink-400/0
-                    group-hover:from-violet-400/20 group-hover:to-pink-400/15
+                    group-hover:from-violet-400/18 group-hover:to-pink-400/12
                     blur-2xl transition-all duration-500 pointer-events-none" />
 
-                  {/* Step number watermark */}
-                  <span className="absolute top-3 right-4 font-heading font-black text-[2.5rem]
-                    text-violet-100/50 dark:text-violet-400/10 select-none leading-none">
-                    {s.step}
-                  </span>
-
-                  {/* Icon */}
-                  <div className="relative w-12 h-12 rounded-xl flex items-center justify-center mb-5
-                    bg-violet-100/60 dark:bg-violet-500/[0.12] text-violet-600 dark:text-violet-300
-                    group-hover:bg-gradient-to-r group-hover:from-pink-500 group-hover:via-violet-500 group-hover:to-cyan-500
-                    group-hover:text-white group-hover:shadow-lg group-hover:shadow-violet-500/30
-                    transition-all duration-300">
-                    <Icon className="w-5 h-5" />
+                  {/* Icon row with step badge */}
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="relative w-12 h-12 rounded-xl flex items-center justify-center
+                      bg-violet-100/60 dark:bg-violet-500/[0.12] text-violet-600 dark:text-violet-300
+                      group-hover:bg-gradient-to-r group-hover:from-pink-500 group-hover:via-violet-500 group-hover:to-cyan-500
+                      group-hover:text-white group-hover:shadow-lg group-hover:shadow-violet-500/30
+                      transition-all duration-300">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    {/* Step pill badge — top right, clean */}
+                    <span className="text-[10px] font-black tracking-widest px-2 py-1 rounded-full
+                      bg-violet-100/70 dark:bg-violet-500/[0.12]
+                      text-violet-500 dark:text-violet-400
+                      border border-violet-300/40 dark:border-violet-500/20
+                      backdrop-blur-sm">
+                      {s.step}
+                    </span>
                   </div>
 
-                  <h3 className="font-bold text-[15px] text-neutral-900 dark:text-white mb-2 group-hover:text-aurora transition-colors">
+                  <h3 className="font-bold text-[15px] text-neutral-900 dark:text-white mb-2
+                    group-hover:text-violet-500 dark:group-hover:text-violet-400 transition-colors">
                     {s.title}
                   </h3>
-                  <p className="text-[13px] text-neutral-500 dark:text-neutral-400 leading-relaxed">{s.desc}</p>
+                  <p className="text-[13px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                    {s.desc}
+                  </p>
+
+                  {/* Bottom step indicator line */}
+                  <div className="absolute bottom-0 inset-x-0 h-[2px] rounded-b-2xl
+                    bg-gradient-to-r from-pink-400/0 via-violet-400/0 to-cyan-400/0
+                    group-hover:from-pink-400/60 group-hover:via-violet-400/80 group-hover:to-cyan-400/60
+                    transition-all duration-400" />
                 </motion.div>
-              );
-            })}
+
+                {/* Arrow connector between cards (desktop only) */}
+                {idx < STEPS.length - 1 && (
+                  <div className="hidden lg:flex items-center justify-center absolute"
+                    style={{ left: `calc(${(idx + 1) * 25}% - 10px)`, top: '50%', transform: 'translateY(-50%)', zIndex: 20 }}>
+                  </div>
+                )}
+              </React.Fragment>
+            );
+          })}
+
+          {/* Dashed gradient connector line BELOW icon level — desktop only */}
+          <div aria-hidden className="hidden lg:block absolute left-[12.5%] right-[12.5%] pointer-events-none"
+            style={{ top: '38px' }}>
+            <div className="h-[1.5px] w-full bg-gradient-to-r from-pink-400/30 via-violet-400/50 to-cyan-400/30
+              [mask-image:repeating-linear-gradient(90deg,black_0,black_8px,transparent_8px,transparent_16px)]" />
           </div>
         </div>
       </section>
