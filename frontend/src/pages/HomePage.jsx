@@ -363,23 +363,9 @@ export function HomePage() {
                     group-hover:from-pink-400/60 group-hover:via-violet-400/80 group-hover:to-cyan-400/60
                     transition-all duration-400" />
                 </motion.div>
-
-                {/* Arrow connector between cards (desktop only) */}
-                {idx < STEPS.length - 1 && (
-                  <div className="hidden lg:flex items-center justify-center absolute"
-                    style={{ left: `calc(${(idx + 1) * 25}% - 10px)`, top: '50%', transform: 'translateY(-50%)', zIndex: 20 }}>
-                  </div>
-                )}
               </React.Fragment>
             );
           })}
-
-          {/* Dashed gradient connector line BELOW icon level — desktop only */}
-          <div aria-hidden className="hidden lg:block absolute left-[12.5%] right-[12.5%] pointer-events-none"
-            style={{ top: '38px' }}>
-            <div className="h-[1.5px] w-full bg-gradient-to-r from-pink-400/30 via-violet-400/50 to-cyan-400/30
-              [mask-image:repeating-linear-gradient(90deg,black_0,black_8px,transparent_8px,transparent_16px)]" />
-          </div>
         </div>
       </section>
 
