@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -21,6 +21,7 @@ import {
 import { StepProgress } from '../components/StepProgress';
 import { useAppStore } from '../store/useAppStore';
 import { formService } from '../services/api';
+import { getTranslation } from '../utils/translations';
 
 /* ─── Stagger variants ──────────────────────────────────────── */
 const containerVariants = {
@@ -37,23 +38,18 @@ const cardVariants = {
   show:   { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
 };
 
-const panelVariants = {
-  hidden: { opacity: 0, y: 12 },
-  show:   { opacity: 1, y: 0,  transition: { duration: 0.3,  ease: [0.22, 1, 0.36, 1] } },
-};
-
-/* ─── Icon resolver (fallback from emoji to Lucide) ──────────── */
+/* ─── Icon resolver ─────────────────────────────────────────── */
 const ICON_MAP = {
   GraduationCap, Landmark, BookOpen, Award, FileSpreadsheet, Wheat, Globe,
 };
 
 function SchemeIcon({ scheme }) {
-  const color = scheme.tagColor ?? '#FF7A00';
+  const color = scheme.tagColor ?? '#A78BFA';
   const Icon  = ICON_MAP[scheme.iconName] ?? ClipboardList;
   return (
     <div
-      className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-      style={{ backgroundColor: `${color}18` }}
+      className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
+      style={{ backgroundColor: `${color}18`, border: `1px solid ${color}30` }}
     >
       <Icon className="w-5 h-5" style={{ color }} strokeWidth={2} />
     </div>
@@ -61,70 +57,70 @@ function SchemeIcon({ scheme }) {
 }
 
 /* ─── Scheme card ───────────────────────────────────────────── */
-function SchemeCard({ scheme, onClick }) {
+function SchemeCard({ scheme, onClick, t }) {
   const available = scheme.available;
-  const tagColor  = scheme.tagColor ?? '#FF7A00';
+  const tagColor  = scheme.tagColor ?? '#A78BFA';
 
   return (
     <motion.div
       variants={cardVariants}
-      whileHover={available ? { y: -3 } : {}}
+      whileHover={available ? { y: -4 } : {}}
       whileTap={available ? { scale: 0.985 } : {}}
       onClick={() => onClick(scheme)}
       className={[
-        'relative flex flex-col bg-white dark:bg-[#0E1320]',
-        'rounded-2xl border p-5 transition-all duration-200 group overflow-hidden',
+        'relative flex flex-col glass-card glass-card-aurora',
+        'rounded-3xl p-6 transition-all duration-300 group overflow-hidden',
         available
-          ? 'cursor-pointer border-neutral-200 dark:border-neutral-800 hover:border-violet-400 dark:hover:border-violet-500 hover:shadow-lg hover:shadow-violet-500/8'
-          : 'cursor-default border-neutral-200 dark:border-neutral-800 opacity-60',
+          ? 'cursor-pointer hover:border-violet-400/50 hover:shadow-xl hover:shadow-violet-500/10'
+          : 'cursor-default opacity-60',
       ].join(' ')}
     >
       {/* Coming soon overlay badge */}
       {!available && (
-        <span className="absolute top-3 right-3 text-[10px] font-extrabold uppercase tracking-widest bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 px-2.5 py-1 rounded-full border border-neutral-200 dark:border-neutral-700">
-          Coming Soon
+        <span className="absolute top-4 right-4 text-[10px] font-extrabold uppercase tracking-widest bg-violet-100/80 dark:bg-violet-500/15 text-violet-600 dark:text-violet-300 px-3 py-1 rounded-full border border-violet-300/30">
+          {t('coming_soon')}
         </span>
       )}
 
       {/* Top row */}
-      <div className="flex items-start gap-3 mb-4">
+      <div className="flex items-start gap-3.5 mb-4">
         <SchemeIcon scheme={scheme} />
         <div className="flex-1 min-w-0 pt-0.5">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
             <span
-              className="inline-block text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full"
+              className="inline-block text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full backdrop-blur-sm"
               style={{
                 backgroundColor: `${tagColor}15`,
                 color: tagColor,
-                border: `1px solid ${tagColor}30`,
+                border: `1px solid ${tagColor}35`,
               }}
             >
-              {available ? scheme.tag : 'Inactive'}
+              {available ? scheme.tag : t('portal_inactive')}
             </span>
           </div>
-          <h3 className="font-bold text-[15px] leading-snug text-neutral-900 dark:text-white">
+          <h3 className="font-heading font-bold text-[16px] leading-snug text-neutral-900 dark:text-white">
             {scheme.title}
           </h3>
         </div>
       </div>
 
       {/* Description */}
-      <p className="text-[13px] text-neutral-500 dark:text-neutral-400 leading-relaxed flex-1">
+      <p className="text-[13px] text-neutral-500 dark:text-neutral-300 leading-relaxed flex-1 font-normal">
         {scheme.description}
       </p>
 
       {/* Footer */}
-      <div className="mt-5 pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
-        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-neutral-400 dark:text-neutral-500">
+      <div className="mt-5 pt-4 border-t border-violet-200/30 dark:border-violet-400/10 flex items-center justify-between">
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-neutral-400 dark:text-neutral-400">
           <span
-            className={`w-1.5 h-1.5 rounded-full ${available ? 'bg-emerald-500' : 'bg-neutral-400'}`}
+            className={`w-1.5 h-1.5 rounded-full ${available ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50' : 'bg-neutral-400'}`}
           />
-          {available ? 'Applications Open' : 'Portal Inactive'}
+          {available ? t('applications_open') : t('portal_inactive')}
         </span>
 
         {available && (
-          <span className="flex items-center gap-1 text-[13px] font-bold text-violet-500 group-hover:gap-2 transition-all">
-            Apply Now <ArrowRight className="w-3.5 h-3.5" />
+          <span className="flex items-center gap-1 text-[13px] font-bold text-violet-500 dark:text-violet-400 group-hover:gap-2 transition-all duration-200">
+            {t('apply_now')} <ArrowRight className="w-3.5 h-3.5" />
           </span>
         )}
       </div>
@@ -138,9 +134,9 @@ function TabPill({ id, label, icon: Icon, active, onClick }) {
     <button
       onClick={() => onClick(id)}
       className={[
-        'relative flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-200',
+        'relative flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-200 cursor-pointer',
         active
-          ? 'bg-gradient-to-r from-fuchsia-600 via-violet-600 to-cyan-600 dark:from-fuchsia-400 dark:via-violet-400 dark:to-cyan-400 text-white dark:text-[#0A0611] shadow-md shadow-violet-500/30'
+          ? 'bg-gradient-to-r from-pink-500 via-violet-500 to-cyan-500 text-white shadow-lg shadow-violet-500/25'
           : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200',
       ].join(' ')}
     >
@@ -153,7 +149,9 @@ function TabPill({ id, label, icon: Icon, active, onClick }) {
 /* ─── Page ──────────────────────────────────────────────────── */
 export function FormSelectionPage() {
   const navigate = useNavigate();
-  const { setSelectedScheme, showToast } = useAppStore();
+  const { language, setSelectedScheme, showToast } = useAppStore();
+  const t = (key) => getTranslation(key, language);
+
   const [forms, setForms]         = useState([]);
   const [activeTab, setActiveTab] = useState('schemes');
   const [customUrl, setCustomUrl] = useState('');
@@ -170,9 +168,56 @@ export function FormSelectionPage() {
       .catch((err) => console.error('Error loading forms:', err));
   }, []);
 
+  // Translated static scheme cards
+  const staticSchemes = useMemo(() => [
+    {
+      id: 'post_matric',
+      title: t('scheme_post_matric_title'),
+      description: t('scheme_post_matric_desc'),
+      iconName: 'GraduationCap',
+      tag: t('tag_goi'),
+      tagColor: '#A78BFA',
+      available: true,
+    },
+    {
+      id: 'central_sector',
+      title: t('scheme_central_sector_title'),
+      description: t('scheme_central_sector_desc'),
+      iconName: 'Landmark',
+      tag: t('tag_moe'),
+      tagColor: '#22D3EE',
+      available: true,
+    },
+    {
+      id: 'pre_matric',
+      title: t('scheme_pre_matric_title'),
+      description: t('scheme_pre_matric_desc'),
+      iconName: 'BookOpen',
+      tag: t('tag_moma'),
+      tagColor: '#34D399',
+      available: true,
+    },
+    {
+      id: 'state_merit',
+      title: t('scheme_state_merit_title'),
+      description: t('scheme_state_merit_desc'),
+      iconName: 'Award',
+      tag: t('tag_state'),
+      tagColor: '#F472B6',
+      available: true,
+    },
+  ], [language]);
+
+  const displaySchemes = forms.length > 0
+    ? forms.map((f) => {
+        const match = staticSchemes.find((s) => s.id === f.id);
+        return match ? { ...f, title: match.title, description: match.description, tag: match.tag } : f;
+      })
+    : staticSchemes;
+
   const handleSelectScheme = (scheme) => {
     if (!scheme.available) {
-      showToast('This portal is opening soon for FY 2026-27.', 'info');
+      showToast('This portal is opening soon.', 'info');
       return;
     }
     setSelectedScheme(scheme);
@@ -198,164 +243,130 @@ export function FormSelectionPage() {
         navigate('/voice');
       }
     } catch (err) {
-      showToast('Failed to parse form URL. Please check the public link.', 'error');
+      showToast('Failed to parse form URL.', 'error');
     } finally {
       setIsParsing(false);
     }
   };
 
-  /* ── Render ──────────────────────────────────────────────── */
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-      {/* Step tracker */}
-      <StepProgress currentStep={1} />
+    <div className="relative min-h-[85vh] overflow-hidden pb-16">
+      {/* Aurora Ambient Blobs */}
+      <div className="aurora-blob aurora-blob-1 absolute -top-40 -right-32 -z-10 opacity-50" />
+      <div className="aurora-blob aurora-blob-2 absolute -bottom-32 -left-32 -z-10 opacity-40" />
 
-      {/* Header */}
-      <div className="space-y-1">
-        <h1 className="font-heading font-extrabold text-2xl sm:text-3xl text-neutral-900 dark:text-white">
-          Select a Scheme or Form
-        </h1>
-        <p className="text-sm text-neutral-500 dark:text-neutral-400 max-w-xl">
-          Choose a national scholarship scheme below, or import any public Google Form URL for voice-assisted filling.
-        </p>
-      </div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        <StepProgress currentStep={1} />
 
-      {/* Tab switcher — pill style */}
-      <div className="flex items-center gap-1 bg-neutral-100 dark:bg-[#0E1320] border border-neutral-200 dark:border-neutral-800 rounded-full p-1 w-fit">
-        <TabPill
-          id="schemes"
-          label="Government Schemes"
-          icon={Landmark}
-          active={activeTab === 'schemes'}
-          onClick={setActiveTab}
-        />
-        <TabPill
-          id="custom"
-          label="Custom Form URL"
-          icon={Link2}
-          active={activeTab === 'custom'}
-          onClick={setActiveTab}
-        />
-      </div>
+        {/* Header */}
+        <div className="text-center space-y-3 max-w-xl mx-auto">
+          <h1 className="font-heading font-black text-3xl sm:text-4xl text-neutral-900 dark:text-white tracking-tight">
+            {t('schemes_page_title')}
+          </h1>
+          <p className="text-sm sm:text-base text-neutral-500 dark:text-neutral-300 leading-relaxed font-medium">
+            {t('schemes_page_sub')}
+          </p>
+        </div>
 
-      {/* Tab content */}
-      <AnimatePresence mode="wait">
-        {activeTab === 'schemes' ? (
-          /* ── Scheme grid ─────────────────────────────────── */
-          <motion.div
-            key="schemes"
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            exit={{ opacity: 0, transition: { duration: 0.15 } }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-          >
-            {forms.length === 0 ? (
-              /* Skeleton shimmer while loading */
-              Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-52 rounded-2xl bg-neutral-100 dark:bg-[#0E1320] border border-neutral-200 dark:border-neutral-800 animate-pulse"
+        {/* Tab pill navigation */}
+        <div className="flex items-center justify-center">
+          <div className="flex items-center gap-1.5 p-1.5 rounded-full glass-card border border-violet-300/30 dark:border-violet-400/20 backdrop-blur-xl">
+            <TabPill
+              id="schemes"
+              label={t('tab_govt_schemes')}
+              icon={Landmark}
+              active={activeTab === 'schemes'}
+              onClick={setActiveTab}
+            />
+            <TabPill
+              id="custom"
+              label={t('tab_custom_form')}
+              icon={Link2}
+              active={activeTab === 'custom'}
+              onClick={setActiveTab}
+            />
+          </div>
+        </div>
+
+        {/* Tab contents */}
+        <AnimatePresence mode="wait">
+          {activeTab === 'schemes' ? (
+            <motion.div
+              key="schemes"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 md:grid-cols-2 gap-5"
+            >
+              {displaySchemes.map((scheme) => (
+                <SchemeCard
+                  key={scheme.id}
+                  scheme={scheme}
+                  onClick={handleSelectScheme}
+                  t={t}
                 />
-              ))
-            ) : (
-              forms.map((scheme) => (
-                <SchemeCard key={scheme.id} scheme={scheme} onClick={handleSelectScheme} />
-              ))
-            )}
-          </motion.div>
-        ) : (
-          /* ── Custom URL panel ────────────────────────────── */
-          <motion.div
-            key="custom"
-            variants={panelVariants}
-            initial="hidden"
-            animate="show"
-            exit={{ opacity: 0, transition: { duration: 0.15 } }}
-            className="max-w-lg"
-          >
-            <div className="bg-white dark:bg-[#0E1320] rounded-2xl border border-neutral-200 dark:border-neutral-800 p-6 space-y-6">
-              {/* Card header */}
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="custom"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -14 }}
+              transition={{ duration: 0.3 }}
+              className="max-w-xl mx-auto glass-card glass-card-aurora p-8 rounded-3xl space-y-6"
+            >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center">
-                  <Link2 className="w-5 h-5 text-violet-500" />
+                <div className="w-10 h-10 rounded-2xl bg-cyan-500/15 text-cyan-500 flex items-center justify-center border border-cyan-400/30">
+                  <Globe className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-[15px] text-neutral-900 dark:text-white">
-                    Import Google Form
+                  <h3 className="font-heading font-bold text-base text-neutral-900 dark:text-white">
+                    Import Public Google Form
                   </h3>
-                  <p className="text-[13px] text-neutral-500 dark:text-neutral-400">
-                    FormMitra will inspect fields and enable voice auto-fill
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    Paste any public Google Form or web form URL
                   </p>
                 </div>
               </div>
 
-              {/* URL form */}
               <form onSubmit={handleParseCustomForm} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="block text-[11px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
-                    Google Form Public URL
+                <div>
+                  <label className="block text-xs font-bold text-neutral-500 dark:text-neutral-400 mb-2 uppercase tracking-wider">
+                    Form URL
                   </label>
-                  <div className="relative">
-                    <ExternalLink className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
-                    <input
-                      type="url"
-                      required
-                      placeholder="https://docs.google.com/forms/d/e/.../viewform"
-                      value={customUrl}
-                      onChange={(e) => setCustomUrl(e.target.value)}
-                      className="glass-input pl-10 text-[13px] font-mono"
-                    />
-                  </div>
+                  <input
+                    type="url"
+                    required
+                    value={customUrl}
+                    onChange={(e) => setCustomUrl(e.target.value)}
+                    placeholder="https://docs.google.com/forms/d/e/.../viewform"
+                    className="glass-input !py-3 !pl-4 text-sm font-mono"
+                  />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isParsing || !customUrl.trim()}
-                  className="w-full btn-primary py-3 text-sm justify-center"
+                  className="btn-primary w-full py-3.5 text-sm"
                 >
                   {isParsing ? (
-                    <>
+                    <span className="flex items-center justify-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Inspecting Form Schema&hellip;</span>
-                    </>
+                      Parsing Form Schema…
+                    </span>
                   ) : (
-                    <>
+                    <span className="flex items-center justify-center gap-2">
                       <Sparkles className="w-4 h-4" />
-                      <span>Parse &amp; Start Voice Auto-Fill</span>
-                    </>
+                      Import &amp; Start Voice Fill
+                    </span>
                   )}
                 </button>
               </form>
-
-              {/* Instructions */}
-              <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700/60 p-4 space-y-2.5">
-                <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-400">
-                  How it works
-                </p>
-                {[
-                  { icon: CheckCircle2, text: 'Paste any public Google Form or forms.gle link' },
-                  { icon: CheckCircle2, text: 'FormMitra reads the form structure automatically' },
-                  { icon: CheckCircle2, text: 'Speak your answers — AI fills each field for you' },
-                ].map(({ icon: Icon, text }, i) => (
-                  <div key={i} className="flex items-start gap-2.5">
-                    <Icon className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" strokeWidth={2.5} />
-                    <span className="text-[13px] text-neutral-600 dark:text-neutral-400">{text}</span>
-                  </div>
-                ))}
-                <div className="flex items-start gap-2.5 pt-1">
-                  <AlertCircle className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" strokeWidth={2.5} />
-                  <span className="text-[13px] text-neutral-500 dark:text-neutral-400">
-                    Form must be set to{' '}
-                    <strong className="text-neutral-700 dark:text-neutral-300">Anyone with the link</strong>{' '}
-                    to allow schema reading.
-                  </span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
