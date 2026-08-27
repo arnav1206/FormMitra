@@ -37,13 +37,13 @@ function InlineWaveform({ isRecording }) {
   }, [isRecording]);
 
   return (
-    <div className="flex items-center justify-center gap-[3px] h-12 w-full">
+    <div className="flex items-center justify-center gap-[3px] overflow-hidden" style={{ height: '48px', flexShrink: 0 }}>
       {bars.map((h, i) => (
         <motion.span
           key={i}
-          animate={{ height: h }}
+          animate={{ scaleY: h / 48 }}
           transition={{ type: 'spring', stiffness: 320, damping: 22 }}
-          style={{ height: h }}
+          style={{ transformOrigin: 'center', height: '48px' }}
           className={`w-[3px] rounded-full inline-block ${
             isRecording
               ? 'bg-gradient-to-t from-pink-500 via-violet-400 to-cyan-400'
