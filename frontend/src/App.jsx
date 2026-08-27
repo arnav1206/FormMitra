@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Mic, Shield } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { AIAssistantWidget } from './components/AIAssistantWidget';
@@ -56,6 +56,10 @@ function PublicOnlyRoute({ children }) {
 export function App() {
   const { darkMode, user, isAdmin, token } = useAppStore();
   const isAuthenticated = Boolean(token && (user || isAdmin));
+  const location = useLocation();
+
+  // Auth pages (login/register) render full-screen — no Navbar, no Footer
+  const isAuthPage = ['/login', '/register'].includes(location.pathname);
 
   useEffect(() => {
     if (darkMode) {
@@ -65,30 +69,26 @@ export function App() {
     }
   }, [darkMode]);
 
+  // ── Auth pages: render completely isolated, no chrome ──────────
+  if (isAuthPage) {
+    return (
+      <>
+        <Routes>
+          <Route path="/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
+          <Route path="/register" element={<PublicOnlyRoute><RegisterPage /></PublicOnlyRoute>} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+        <Toast />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col noise-overlay" style={{ backgroundColor: 'var(--bg-main)', color: 'var(--text-primary)' }}>
       <Navbar />
 
       <main className="flex-1">
         <Routes>
-          {/* Public Auth Routes */}
-          <Route
-            path="/login"
-            element={
-              <PublicOnlyRoute>
-                <LoginPage />
-              </PublicOnlyRoute>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <PublicOnlyRoute>
-                <RegisterPage />
-              </PublicOnlyRoute>
-            }
-          />
-
           {/* Protected Portal Routes (Only accessible after login) */}
           <Route
             path="/"
