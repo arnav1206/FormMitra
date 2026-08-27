@@ -225,12 +225,13 @@ export function HomePage() {
                       <span className="text-[11px] text-violet-700 dark:text-violet-300 font-bold flex items-center gap-1.5">
                         <Mic className="w-3.5 h-3.5" /> {t('spoken_input')}
                       </span>
-                      <div className="flex items-center gap-0.5">
+                      <div className="flex items-center gap-0.5 h-6 overflow-hidden">
                         {[12, 20, 8, 16, 24, 10, 18].map((h, i) => (
                           <motion.span
                             key={i}
-                            className="w-[3px] rounded-full bg-violet-400 dark:bg-violet-400/80"
-                            animate={{ height: [h * 0.4, h, h * 0.4] }}
+                            className="w-[3px] rounded-full bg-violet-400 dark:bg-violet-400/80 inline-block"
+                            style={{ height: '24px', transformOrigin: 'center' }}
+                            animate={{ scaleY: [0.25, h / 24, 0.25] }}
                             transition={{ repeat: Infinity, duration: 0.8 + i * 0.1, ease: 'easeInOut' }}
                           />
                         ))}

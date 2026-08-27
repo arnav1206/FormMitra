@@ -47,11 +47,12 @@ export function VoiceWaveform({ isRecording = false, duration = 0 }) {
       </div>
 
       {/* Waveform Bars */}
-      <div className="flex items-center justify-center gap-1.5 h-14 px-6 w-full max-w-sm">
+      <div className="flex items-center justify-center gap-1.5 h-14 px-6 w-full max-w-sm overflow-hidden">
         {randomHeights.map((h, idx) => (
           <motion.div
             key={idx}
-            animate={{ height: `${h}px` }}
+            style={{ height: '40px', transformOrigin: 'center' }}
+            animate={{ scaleY: h / 40 }}
             transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             className={`w-1.5 rounded-full transition-colors ${
               isRecording
