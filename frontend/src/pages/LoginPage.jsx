@@ -74,7 +74,7 @@ function Field({ label, type, value, onChange, placeholder, icon: Icon, iconColo
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full py-3.5 text-sm font-medium rounded-2xl transition-all duration-300 outline-none
+          className="w-full py-2.5 text-sm font-medium rounded-2xl transition-all duration-300 outline-none
             bg-white/[0.05] border border-white/[0.08]
             text-white placeholder:text-white/20
             focus:bg-white/[0.08] focus:border-violet-400/40
@@ -172,7 +172,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex overflow-hidden" style={{ background: '#060412' }}>
+    <div className="relative h-screen flex overflow-hidden" style={{ background: '#060412' }}>
 
       {/* ════ LEFT — Hero Panel ════════════════════════════════════ */}
       <div className="hidden lg:flex lg:w-[54%] relative flex-col items-center justify-center p-16 overflow-hidden">
@@ -306,7 +306,7 @@ export function LoginPage() {
       </div>
 
       {/* ════ RIGHT — Form Panel ══════════════════════════════════ */}
-      <div className="flex-1 flex flex-col items-center justify-center min-h-screen px-5 py-10 relative overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-center h-full px-5 py-4 relative overflow-hidden">
         {/* Right panel bg */}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, #090618 0%, #060412 60%, #0A0520 100%)' }} />
         {/* Subtle grid */}
@@ -324,25 +324,19 @@ export function LoginPage() {
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10 w-full max-w-[400px] space-y-5"
+          className="relative z-10 w-full max-w-[400px] space-y-3"
         >
           {/* ── Mobile-only brand header ── */}
-          <div className="lg:hidden text-center space-y-3 pb-2">
+          <div className="lg:hidden text-center space-y-2 pb-0">
             <div className="relative inline-flex">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-pink-500 via-violet-500 to-cyan-500 flex items-center justify-center shadow-2xl mx-auto">
-                <Mic className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 via-violet-500 to-cyan-500 flex items-center justify-center shadow-xl mx-auto">
+                <Mic className="w-5 h-5 text-white" />
               </div>
-              <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-tr from-pink-500/30 via-violet-500/30 to-cyan-500/30 blur-xl -z-10" />
+              <div className="absolute -inset-1 rounded-xl bg-gradient-to-tr from-pink-500/30 via-violet-500/30 to-cyan-500/30 blur-lg -z-10" />
             </div>
             <div>
-              <h2 className="font-heading font-black text-2xl text-white tracking-tight">FormMitra</h2>
-              <p className="text-xs text-white/35 font-medium mt-0.5">AI Voice-Powered Scholarship Assistant</p>
-            </div>
-            {/* Mobile feature pills row */}
-            <div className="flex flex-wrap justify-center gap-1.5 pt-1">
-              <FeaturePill icon={Globe} label="9 Languages" color="#22D3EE" delay={0.1} />
-              <FeaturePill icon={Sparkles} label="Gemini AI" color="#A78BFA" delay={0.16} />
-              <FeaturePill icon={Zap} label="Auto Fill" color="#F472B6" delay={0.22} />
+              <h2 className="font-heading font-black text-xl text-white tracking-tight leading-none">FormMitra</h2>
+              <p className="text-[11px] text-white/35 font-medium mt-0.5">AI Voice-Powered Scholarship Assistant</p>
             </div>
           </div>
 
@@ -398,26 +392,26 @@ export function LoginPage() {
                 <div className="absolute -bottom-16 -left-16 w-36 h-36 rounded-full pointer-events-none"
                   style={{ background: isAdminMode ? 'rgba(167,139,250,0.10)' : 'rgba(244,114,182,0.12)', filter: 'blur(36px)' }} />
 
-                <div className="relative p-7 space-y-5">
+                <div className="relative p-5 space-y-3.5">
 
                   {/* Card header */}
-                  <div className="flex items-center gap-3 pb-1">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
                       style={{
                         background: isAdminMode ? 'rgba(34,211,238,0.12)' : 'rgba(167,139,250,0.12)',
                         border: `1px solid ${isAdminMode ? 'rgba(34,211,238,0.25)' : 'rgba(167,139,250,0.25)'}`,
                       }}
                     >
                       {isAdminMode
-                        ? <Shield className="w-4 h-4 text-cyan-400" />
-                        : <User className="w-4 h-4 text-violet-400" />
+                        ? <Shield className="w-3.5 h-3.5 text-cyan-400" />
+                        : <User className="w-3.5 h-3.5 text-violet-400" />
                       }
                     </div>
                     <div>
-                      <h2 className="font-heading font-black text-[19px] text-white leading-tight">
+                      <h2 className="font-heading font-black text-[17px] text-white leading-tight">
                         {isAdminMode ? 'Officer Access' : 'Welcome back'}
                       </h2>
-                      <p className="text-[11px] text-white/35 font-medium mt-0.5">
+                      <p className="text-[11px] text-white/35 font-medium">
                         {isAdminMode
                           ? 'Authorized NSP welfare officer login'
                           : 'Sign in to your student account'
@@ -431,16 +425,16 @@ export function LoginPage() {
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
-                      className="flex items-start gap-2.5 px-3.5 py-3 rounded-2xl text-[11px] text-cyan-300/65 font-medium"
+                      className="flex items-start gap-2 px-3 py-2.5 rounded-xl text-[11px] text-cyan-300/65 font-medium"
                       style={{ background: 'rgba(34,211,238,0.07)', border: '1px solid rgba(34,211,238,0.15)' }}
                     >
-                      <Shield className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
-                      Restricted to authorized National Scholarship Portal officers and scrutiny team members only.
+                      <Shield className="w-3 h-3 text-cyan-400 shrink-0 mt-0.5" />
+                      Restricted to authorized National Scholarship Portal officers only.
                     </motion.div>
                   )}
 
                   {/* Fields */}
-                  <form onSubmit={isAdminMode ? doAdminLogin : doStudentLogin} className="space-y-4">
+                  <form onSubmit={isAdminMode ? doAdminLogin : doStudentLogin} className="space-y-3">
                     {!isAdminMode ? (
                       <>
                         <Field
@@ -488,22 +482,22 @@ export function LoginPage() {
                     )}
 
                     {/* Demo credentials hint */}
-                    <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl text-[11px] font-medium"
+                    <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-[11px] font-medium"
                       style={{
                         background: isAdminMode ? 'rgba(34,211,238,0.06)' : 'rgba(167,139,250,0.07)',
                         border: `1px solid ${isAdminMode ? 'rgba(34,211,238,0.15)' : 'rgba(167,139,250,0.15)'}`,
                       }}
                     >
-                      <Sparkles className="w-3.5 h-3.5 shrink-0" style={{ color: isAdminMode ? '#22D3EE' : '#A78BFA' }} />
+                      <Sparkles className="w-3 h-3 shrink-0" style={{ color: isAdminMode ? '#22D3EE' : '#A78BFA' }} />
                       <span style={{ color: isAdminMode ? 'rgba(34,211,238,0.55)' : 'rgba(167,139,250,0.55)' }}>
                         Demo:{' '}
-                        <code className="font-bold px-1.5 py-0.5 rounded-lg text-white"
+                        <code className="font-bold px-1.5 py-0.5 rounded-md text-white"
                           style={{ background: isAdminMode ? 'rgba(34,211,238,0.12)' : 'rgba(167,139,250,0.14)' }}
                         >
                           {isAdminMode ? 'admin' : '9876543210'}
                         </code>
                         {' '}·{' '}
-                        <code className="font-bold px-1.5 py-0.5 rounded-lg text-white"
+                        <code className="font-bold px-1.5 py-0.5 rounded-md text-white"
                           style={{ background: isAdminMode ? 'rgba(34,211,238,0.12)' : 'rgba(167,139,250,0.14)' }}
                         >
                           {isAdminMode ? 'admin123' : 'password123'}
@@ -515,15 +509,15 @@ export function LoginPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="relative w-full py-4 rounded-2xl font-bold text-sm text-[#060412] cursor-pointer
-                        overflow-hidden transition-all duration-300 active:scale-[0.98] mt-1"
+                      className="relative w-full py-3.5 rounded-2xl font-bold text-sm text-[#060412] cursor-pointer
+                        overflow-hidden transition-all duration-300 active:scale-[0.98]"
                       style={{
                         background: isAdminMode
                           ? 'linear-gradient(110deg, #22D3EE, #A78BFA, #F472B6)'
                           : 'linear-gradient(110deg, #F472B6, #A78BFA, #22D3EE)',
                         boxShadow: isAdminMode
-                          ? '0 8px 32px rgba(34,211,238,0.30), 0 2px 8px rgba(0,0,0,0.3)'
-                          : '0 8px 32px rgba(167,139,250,0.30), 0 2px 8px rgba(0,0,0,0.3)',
+                          ? '0 6px 24px rgba(34,211,238,0.28), 0 2px 6px rgba(0,0,0,0.3)'
+                          : '0 6px 24px rgba(167,139,250,0.28), 0 2px 6px rgba(0,0,0,0.3)',
                       }}
                     >
                       {/* Shimmer overlay on hover */}
