@@ -11,11 +11,13 @@ export function polishWithWisprFlow(text, language = 'Hindi') {
   if (!text || typeof text !== 'string') return '';
 
   let polished = text
-    // Remove verbal fillers
-    .replace(/\b(?:um|uh|err|ah|like|you know|matlab|yaani|arre|toh|mtlb)\b/gi, '')
+    // Remove verbal fillers & hesitation markers
+    .replace(/\b(?:um|uh|err|ah|like|you know|matlab|yaani|arre|toh|mtlb|haan|aur haan)\b/gi, '')
     // Fix spaces around punctuation
     .replace(/\s+([.,!?:;।])/g, '$1')
     .replace(/([.,!?:;।])(?=[^\s])/g, '$1 ')
+    // Standardize Indian currency numbers
+    .replace(/\b(?:rupees?|rs\.?|inr)\s*(\d+(?:,\d+)*(?:\.\d+)?)\b/gi, '₹$1')
     // Multiple spaces
     .replace(/\s{2,}/g, ' ')
     .trim();
@@ -26,21 +28,89 @@ export function polishWithWisprFlow(text, language = 'Hindi') {
   return polished;
 }
 
+const SCHOLARSHIP_DICTIONARY = [
+  'Aadhaar', 'DBT', 'Samagra ID', 'NSP', 'National Scholarship Portal',
+  'Post-Matric', 'Pre-Matric', 'Pragati Scholarship', 'Saksham Scheme',
+  'AICTE', 'UGC', 'Tehsildar', 'OBC', 'SC', 'ST', 'EWS', 'General',
+  'B.Tech', 'B.Sc', 'B.Com', 'B.A', 'M.Tech', 'Diploma', 'Polytechnic',
+  'CGPA', 'Percentage', 'Tuition Waiver', 'State Domicile', 'Income Certificate'
+];
+
 export async function transcribeWithWisprFlow(audioFile, language = 'Hindi', promptContext = '') {
   const wisprApiKey = process.env.WISPR_FLOW_API_KEY || process.env.WISPR_API_KEY;
+  const wisprApiUrl = process.env.WISPR_FLOW_API_URL || 'https://api.wisprflow.ai/api';
   const groqApiKey = process.env.GROQ_API_KEY;
   const openaiApiKey = process.env.OPENAI_API_KEY;
 
-  // 1. Wispr Flow Official API Integration
+  const langCodeMap = {
+    'Hindi': 'hi',
+    'English': 'en',
+    'Tamil': 'ta',
+    'Telugu': 'te',
+    'Bengali': 'bn',
+    'Marathi': 'mr',
+    'Kannada': 'kn',
+    'Malayalam': 'ml',
+    'Odia': 'or',
+    'Gujarati': 'gu',
+    'Punjabi': 'pa',
+  };
+  const targetLangCode = langCodeMap[language] || 'hi';
+
+  // 1. Wispr Flow Official API Integration (REST JSON with Base64 audio or Multipart)
   if (wisprApiKey && audioFile && audioFile.path) {
     try {
-      const formData = new FormData();
-      const fileBlob = new Blob([fs.readFileSync(audioFile.path)], { type: audioFile.mimetype || 'audio/webm' });
-      formData.append('file', fileBlob, audioFile.originalname || 'dictation.webm');
-      formData.append('language', language);
-      formData.append('context', 'Indian Government Scholarship and Educational Schemes');
+      const fileBuffer = fs.readFileSync(audioFile.path);
+      const base64Audio = fileBuffer.toString('base64');
 
-      const response = await fetch('https://api.wisprflow.ai/v1/transcribe', {
+      // Attempt A: Wispr Flow REST JSON endpoint
+      try {
+        const jsonResponse = await fetch(wisprApiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${wisprApiKey}`,
+            'X-API-Key': wisprApiKey,
+          },
+          body: JSON.stringify({
+            audio: base64Audio,
+            language: targetLangCode,
+            context: {
+              app: 'FormMitra_Scholarship_Application',
+              dictionary_context: SCHOLARSHIP_DICTIONARY,
+              textbox_contents: promptContext || `User submitting Indian scholarship form in ${language}`,
+            },
+          }),
+        });
+
+        if (jsonResponse.ok) {
+          const resData = await jsonResponse.json();
+          const transcriptText = resData.text || resData.formatted_text || resData.transcript || '';
+          if (transcriptText) {
+            return {
+              success: true,
+              transcript: polishWithWisprFlow(transcriptText, language),
+              raw: transcriptText,
+              engine: 'Wispr Flow AI Voice Interface Engine',
+              model: resData.model || 'wispr-flow-v2-indic',
+            };
+          }
+        }
+      } catch (jsonErr) {
+        console.warn('Wispr Flow JSON endpoint error, trying multipart fallback:', jsonErr.message);
+      }
+
+      // Attempt B: Wispr Flow multipart endpoint
+      const formData = new FormData();
+      const fileBlob = new Blob([fileBuffer], { type: audioFile.mimetype || 'audio/webm' });
+      formData.append('file', fileBlob, audioFile.originalname || 'dictation.webm');
+      formData.append('language', targetLangCode);
+      formData.append('context', JSON.stringify({
+        app: 'FormMitra_Scholarship_Application',
+        dictionary: SCHOLARSHIP_DICTIONARY,
+      }));
+
+      const formResponse = await fetch('https://api.wisprflow.ai/v1/transcribe', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${wisprApiKey}`,
@@ -48,8 +118,8 @@ export async function transcribeWithWisprFlow(audioFile, language = 'Hindi', pro
         body: formData,
       });
 
-      if (response.ok) {
-        const json = await response.json();
+      if (formResponse.ok) {
+        const json = await formResponse.json();
         const rawText = json.text || json.transcript || '';
         const cleaned = polishWithWisprFlow(rawText, language);
         return {
@@ -65,7 +135,7 @@ export async function transcribeWithWisprFlow(audioFile, language = 'Hindi', pro
     }
   }
 
-  // 2. Groq Whisper Large V3 (Ultra-Fast 70x Realtime Speech-To-Text)
+  // 2. Groq Whisper Large V3 (Ultra-Fast 70x Realtime STT)
   if (groqApiKey && audioFile && audioFile.path) {
     try {
       const formData = new FormData();
@@ -73,6 +143,7 @@ export async function transcribeWithWisprFlow(audioFile, language = 'Hindi', pro
       formData.append('file', fileBlob, 'speech.webm');
       formData.append('model', 'whisper-large-v3-turbo');
       formData.append('response_format', 'json');
+      formData.append('language', targetLangCode);
       if (promptContext) formData.append('prompt', promptContext);
 
       const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
@@ -107,6 +178,7 @@ export async function transcribeWithWisprFlow(audioFile, language = 'Hindi', pro
       const fileBlob = new Blob([fs.readFileSync(audioFile.path)], { type: audioFile.mimetype || 'audio/webm' });
       formData.append('file', fileBlob, 'speech.webm');
       formData.append('model', 'whisper-1');
+      formData.append('language', targetLangCode);
 
       const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
         method: 'POST',
