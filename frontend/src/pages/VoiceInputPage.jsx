@@ -55,6 +55,18 @@ function InlineWaveform({ isRecording }) {
   );
 }
 
+const CLIENT_SAMPLE_TRANSCRIPTS = {
+  Hindi: 'मेरा नाम राहुल शर्मा है। मैं जयपुर राजस्थान का रहने वाला हूँ। मैं B.Tech द्वितीय वर्ष का छात्र हूँ और बीआईटी संस्थान में पढ़ता हूँ। मेरी जन्मतिथि 15/08/2003 है और मेरी परिवार की वार्षिक आय ₹1,50,000 है। मेरा फोन नंबर 9876543210 और ईमेल rahul.sharma@example.com है।',
+  Odia: 'ମୋର ନାମ ରାହୁଲ ଶର୍ମା | ମୁଁ ଭୁବନେଶ୍ୱର ଓଡ଼ିଶାର ରହୁଛି | ମୁଁ B.Tech ଦ୍ୱିତୀୟ ବର୍ଷର ଛାତ୍ର | ମୋର ବାର୍ଷିକ ପରିବାର ଆୟ ₹1,50,000 | ମୋର ଫୋନ୍ ନମ୍ବର 9876543210 ଏବଂ ଇମେଲ୍ rahul.sharma@example.com |',
+  English: 'My name is Rahul Sharma. I live in Jaipur, Rajasthan. I am a student of B.Tech Second Year studying at BIT Institute. My date of birth is 15/08/2003 and my annual family income is ₹1,50,000. My phone number is 9876543210 and email is rahul.sharma@example.com.',
+  Tamil: 'என் பெயர் ராகுல் சர்மா. நான் ஜெய்ப்பூர் ராஜஸ்தானில் வசிக்கிறேன். நான் பி.டெக் இரண்டாம் ஆண்டு மாணவர். என் ஆண்டு வருமானம் ₹1,50,000. என் தொலைபேசி எண் 9876543210 மற்றும் மின்னஞ்சல் rahul.sharma@example.com.',
+  Telugu: 'నా పేరు రాహుల్ శర్మ. నేను జైపూర్ రాజస్థాన్‌లో నివసిస్తున్నాను. నేను బి.టెక్ రెండవ సంవత్సరం విద్యార్థిని. నా వార్షిక ఆదాయం ₹1,50,000. నా ఫోన్ నంబర్ 9876543210 మరియు ఇమెయిల్ rahul.sharma@example.com.',
+  Bengali: 'আমার নাম রাহুল শর্মা। আমি জয়পুর রাজস্থানে থাকি। আমি বি.টেক দ্বিতীয় বর্ষের ছাত্র। আমার বার্ষিক আয় ₹১,৫০,০০০। আমার ফোন নম্বর ৯৮৭৬৫৪৩২১০ এবং ইমেল rahul.sharma@example.com।',
+  Marathi: 'माझे नाव राहुल शर्मा आहे. मी जयपूर राजस्थान येथे राहतो. मी बी.टेक द्वितीय वर्षाचा विद्यार्थी आहे. माझे वार्षिक उत्पन्न ₹1,50,000 आहे. माझा फोन नंबर 9876543210 आणि ई-मेल rahul.sharma@example.com आहे.',
+  Kannada: 'ನನ್ನ ಹೆಸರು ರಾಹುಲ್ ಶರ್ಮಾ. ನಾನು ಜೈಪುರ ರಾಜಸ್ಥಾನದಲ್ಲಿ ವಾಸಿಸುತ್ತಿದ್ದೇನೆ. ನಾನು ಬಿ.ಟೆಕ್ ಎರಡನೇ ವರ್ಷದ ವಿದ್ಯಾರ್ಥಿ. ನನ್ನ ವಾರ್ಷಿಕ ಆದಾಯ ₹1,50,000. ನನ್ನ ಫೋನ್ ಸಂಖ್ಯೆ 9876543210 ಮತ್ತು ಇಮೇಲ್ rahul.sharma@example.com.',
+  Malayalam: 'എന്റെ പേര് രാഹുൽ ശർമ്മ. ഞാൻ ജയ്പൂർ രാജസ്ഥാനിൽ താമസിക്കുന്നു. ഞാൻ ബി.ടെക് രണ്ടാം വർഷ വിദ്യാർത്ഥിയാണ്. എന്റെ വാർഷിക വരുമാനം ₹1,50,000. എന്റെ ഫോൺ നമ്പർ 9876543210 ഉം ഇമെയിൽ rahul.sharma@example.com ഉം ആണ്.',
+};
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export function VoiceInputPage() {
   const navigate = useNavigate();
@@ -73,9 +85,14 @@ export function VoiceInputPage() {
   const [detectedLanguage, setDetectedLanguage] = useState(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
+  const isRecordingRef = useRef(false);
   const recognitionRef = useRef(null);
   const timerRef = useRef(null);
   const langScrollRef = useRef(null);
+
+  useEffect(() => {
+    isRecordingRef.current = isRecording;
+  }, [isRecording]);
 
   // Status text helper with translations
   const statusText = (rec, trans) => {
@@ -90,44 +107,71 @@ export function VoiceInputPage() {
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (SpeechRecognition) {
-      const recog = new SpeechRecognition();
-      recog.continuous = true;
-      recog.interimResults = true;
-
-      const langMap = {
-        Hindi: 'hi-IN',
-        Odia: 'or-IN',
-        Tamil: 'ta-IN',
-        Telugu: 'te-IN',
-        Bengali: 'bn-IN',
-        Marathi: 'mr-IN',
-        Kannada: 'kn-IN',
-        Malayalam: 'ml-IN',
-        English: 'en-IN',
-      };
-      recog.lang = langMap[language] || 'hi-IN';
-
-      recog.onresult = (event) => {
-        let currentTranscript = '';
-        for (let i = 0; i < event.results.length; i++) {
-          currentTranscript += event.results[i][0].transcript + ' ';
+      try {
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.stop();
+          } catch (e) {}
         }
-        setTranscript(currentTranscript.trim());
-      };
 
-      recog.onerror = (err) => {
-        console.warn('Speech recognition error:', err);
-      };
+        const recog = new SpeechRecognition();
+        recog.continuous = true;
+        recog.interimResults = true;
 
-      recog.onend = () => {
-        if (isRecording) {
+        const langMap = {
+          Hindi: 'hi-IN',
+          Odia: 'or-IN',
+          Tamil: 'ta-IN',
+          Telugu: 'te-IN',
+          Bengali: 'bn-IN',
+          Marathi: 'mr-IN',
+          Kannada: 'kn-IN',
+          Malayalam: 'ml-IN',
+          English: 'en-IN',
+        };
+        recog.lang = langMap[language] || 'hi-IN';
+
+        recog.onresult = (event) => {
+          let fullTranscript = '';
+          for (let i = 0; i < event.results.length; i++) {
+            fullTranscript += event.results[i][0].transcript + ' ';
+          }
+          if (fullTranscript.trim()) {
+            setTranscript(fullTranscript.trim());
+          }
+        };
+
+        recog.onerror = (event) => {
+          console.warn('Speech recognition error:', event.error);
+          if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            setIsRecording(false);
+            isRecordingRef.current = false;
+            showToast('Microphone access blocked. Please enable microphone permissions in your browser.', 'error');
+          } else if (event.error === 'network') {
+            showToast('Speech recognition network error. Please try speaking again or click Load Sample.', 'error');
+          }
+        };
+
+        recog.onend = () => {
+          if (isRecordingRef.current) {
+            try {
+              recog.start();
+            } catch (e) {
+              console.warn('Recognition restart warning:', e);
+            }
+          }
+        };
+
+        recognitionRef.current = recog;
+
+        if (isRecordingRef.current) {
           try {
             recog.start();
           } catch (e) {}
         }
-      };
-
-      recognitionRef.current = recog;
+      } catch (err) {
+        console.warn('Speech recognition setup error:', err);
+      }
     }
 
     return () => {
@@ -159,39 +203,70 @@ export function VoiceInputPage() {
     return `${m}:${s}`;
   };
 
-  const toggleRecording = () => {
+  const toggleRecording = async () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      showToast('Live Web Speech API not supported in this browser. Please use Chrome/Edge or click "Load Sample".', 'error');
+      return;
+    }
+
     if (isRecording) {
+      isRecordingRef.current = false;
+      setIsRecording(false);
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
         } catch (e) {}
       }
-      setIsRecording(false);
       showToast('Dictation recorded successfully.', 'info');
     } else {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.start();
-        } catch (e) {
-          console.warn('Speech start error:', e);
+      try {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          try {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+          } catch (micErr) {
+            console.warn('Microphone permission request:', micErr);
+          }
         }
+
+        isRecordingRef.current = true;
+        setIsRecording(true);
+        if (recognitionRef.current) {
+          try {
+            recognitionRef.current.start();
+          } catch (e) {
+            console.warn('Speech start error:', e);
+          }
+        }
+        showToast(`🎙️ Listening in ${language}... Speak now!`, 'info');
+      } catch (err) {
+        console.error('Speech activation error:', err);
+        setIsRecording(false);
+        isRecordingRef.current = false;
+        showToast('Could not start microphone. Please check permissions.', 'error');
       }
-      setIsRecording(true);
-      showToast(`Listening in ${language}... Speak now!`, 'info');
     }
   };
 
   const handleLoadSample = async () => {
+    const fallbackText = CLIENT_SAMPLE_TRANSCRIPTS[language] || CLIENT_SAMPLE_TRANSCRIPTS['Hindi'];
     try {
       const res = await aiService.getSampleTranscript(language);
-      if (res.success && res.transcript) {
+      if (res && res.success && res.transcript) {
         setTranscript(res.transcript);
         setDetectedLanguage(language);
         showToast(`Loaded sample transcript in ${language}`, 'success');
+        return;
       }
     } catch (err) {
-      showToast('Error loading sample transcript', 'error');
+      console.warn('Backend sample transcript request failed, using resilient local sample:', err);
     }
+    // Always succeed with instant localized sample
+    setTranscript(fallbackText);
+    setDetectedLanguage(language);
+    showToast(`Loaded sample transcript in ${language}`, 'success');
   };
 
   const handleSpeakTranscript = () => {

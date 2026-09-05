@@ -137,10 +137,10 @@ export function AdminPage() {
         adminService.getStats(),
       ]);
 
-      if (appsRes.success && appsRes.applications) {
+      if (appsRes?.success && Array.isArray(appsRes.applications)) {
         setApplications(appsRes.applications);
       }
-      if (statsRes.success && statsRes.stats) {
+      if (statsRes?.success && statsRes.stats) {
         setStats(statsRes.stats);
       }
     } catch (err) {
@@ -157,7 +157,7 @@ export function AdminPage() {
   const handleStatusChange = async (refCode, newStatus) => {
     try {
       const res = await adminService.updateStatus(refCode, newStatus);
-      if (res.success) {
+      if (res?.success) {
         showToast(`Updated ${refCode} to "${newStatus}"`, 'success');
         loadData();
       }
@@ -171,10 +171,12 @@ export function AdminPage() {
     window.open(pdfUrl, '_blank');
   };
 
-  const filteredApps = applications.filter((a) => {
+  const filteredApps = (applications || []).filter((a) => {
+    const name = a.applicantName || '';
+    const ref = a.refCode || '';
     const matchesSearch =
-      a.applicantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      a.refCode.toLowerCase().includes(searchTerm.toLowerCase());
+      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ref.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
@@ -196,9 +198,20 @@ export function AdminPage() {
           </div>
         </div>
 
-        <span className="badge badge-saffron self-start sm:self-auto">
-          ● National Administrator Mode
-        </span>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={loadData}
+            disabled={isLoading}
+            className="btn-secondary !py-1.5 !px-3 text-xs flex items-center gap-1 cursor-pointer"
+            title="Refresh submissions list"
+          >
+            <span className={isLoading ? 'animate-spin' : ''}>🔄</span>
+            <span>Refresh</span>
+          </button>
+          <span className="badge badge-saffron">
+            ● National Administrator Mode
+          </span>
+        </div>
       </div>
 
       {/* Metrics Banner */}
@@ -309,54 +322,62 @@ export function AdminPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
-              {filteredApps.map((app) => (
-                <tr
-                  key={app.refCode || app._id}
-                  className="hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30 transition-colors"
-                >
-                  <td className="p-4 font-mono font-bold text-violet-600 dark:text-violet-400">
-                    {app.refCode}
-                  </td>
-                  <td className="p-4">
-                    <div className="font-bold text-neutral-900 dark:text-white">
-                      {app.applicantName}
-                    </div>
-                    <div className="text-[11px] text-neutral-400">{app.phone}</div>
-                  </td>
-                  <td className="p-4 text-neutral-700 dark:text-neutral-300 font-medium">
-                    {app.schemeName}
-                  </td>
-                  <td className="p-4">
-                    <div className="text-neutral-800 dark:text-neutral-200 font-semibold">
-                      {app.state} ({app.category})
-                    </div>
-                    <div className="text-[11px] text-neutral-400">
-                      {app.incomeFormatted || `₹${app.annualIncome || 150000}`}
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{app.dbtSeeded || 'Yes'}</span>
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <StatusDropdown
-                      value={app.status}
-                      onChange={(newStatus) => handleStatusChange(app.refCode, newStatus)}
-                    />
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => handleDownloadPDF(app.refCode)}
-                      className="p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:text-violet-500 shadow-sm"
-                      title="Download PDF"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                    </button>
+              {filteredApps.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="p-8 text-center text-neutral-400">
+                    {isLoading ? '⏳ Loading submissions from National Scheme Database...' : 'No scholarship applications found matching your criteria.'}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredApps.map((app) => (
+                  <tr
+                    key={app.refCode || app._id}
+                    className="hover:bg-neutral-50/50 dark:hover:bg-neutral-800/30 transition-colors"
+                  >
+                    <td className="p-4 font-mono font-bold text-violet-600 dark:text-violet-400">
+                      {app.refCode}
+                    </td>
+                    <td className="p-4">
+                      <div className="font-bold text-neutral-900 dark:text-white">
+                        {app.applicantName}
+                      </div>
+                      <div className="text-[11px] text-neutral-400">{app.phone}</div>
+                    </td>
+                    <td className="p-4 text-neutral-700 dark:text-neutral-300 font-medium">
+                      {app.schemeName}
+                    </td>
+                    <td className="p-4">
+                      <div className="text-neutral-800 dark:text-neutral-200 font-semibold">
+                        {app.state} ({app.category})
+                      </div>
+                      <div className="text-[11px] text-neutral-400">
+                        {app.incomeFormatted || `₹${app.annualIncome || 150000}`}
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>{app.dbtSeeded || 'Yes'}</span>
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <StatusDropdown
+                        value={app.status}
+                        onChange={(newStatus) => handleStatusChange(app.refCode, newStatus)}
+                      />
+                    </td>
+                    <td className="p-4 text-right">
+                      <button
+                        onClick={() => handleDownloadPDF(app.refCode)}
+                        className="p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:text-violet-500 shadow-sm"
+                        title="Download PDF"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

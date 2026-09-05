@@ -6,13 +6,17 @@ export async function getAdminApplications(req, res) {
     let applications = await DB.getAllApplications();
 
     if (status && status !== 'All') {
-      applications = applications.filter((a) => a.status.includes(status));
+      const s = String(status).toLowerCase();
+      applications = applications.filter((a) => (a.status || '').toLowerCase().includes(s));
     }
     if (state && state !== 'All') {
-      applications = applications.filter((a) => a.state === state);
+      applications = applications.filter((a) => (a.state || '') === state);
     }
     if (scheme && scheme !== 'All') {
-      applications = applications.filter((a) => a.schemeId === scheme || a.schemeName.includes(scheme));
+      const sch = String(scheme).toLowerCase();
+      applications = applications.filter(
+        (a) => (a.schemeId || '').toLowerCase() === sch || (a.schemeName || '').toLowerCase().includes(sch)
+      );
     }
 
     res.json({
@@ -21,6 +25,7 @@ export async function getAdminApplications(req, res) {
       applications,
     });
   } catch (err) {
+    console.error('getAdminApplications error:', err);
     res.status(500).json({ success: false, message: 'Failed to fetch applications for admin portal.' });
   }
 }
@@ -55,9 +60,18 @@ export async function getAdminStats(req, res) {
     const applications = await DB.getAllApplications();
 
     const total = applications.length;
-    const approved = applications.filter((a) => a.status.includes('Approved') || a.status.includes('Disbursed')).length;
-    const pending = applications.filter((a) => a.status.includes('Review') || a.status.includes('Pending')).length;
-    const rejected = applications.filter((a) => a.status.includes('Rejected')).length;
+    const approved = applications.filter((a) => {
+      const st = (a.status || '').toLowerCase();
+      return st.includes('approved') || st.includes('disbursed');
+    }).length;
+    const pending = applications.filter((a) => {
+      const st = (a.status || '').toLowerCase();
+      return st.includes('review') || st.includes('pending');
+    }).length;
+    const rejected = applications.filter((a) => {
+      const st = (a.status || '').toLowerCase();
+      return st.includes('rejected');
+    }).length;
 
     // Approximate scholarship funds calculation
     const totalFundsSanctioned = approved * 35000;
@@ -76,6 +90,7 @@ export async function getAdminStats(req, res) {
       },
     });
   } catch (err) {
+    console.error('getAdminStats error:', err);
     res.status(500).json({ success: false, message: 'Failed to fetch admin stats.' });
   }
 }

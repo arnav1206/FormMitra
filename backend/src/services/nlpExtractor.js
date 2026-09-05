@@ -151,6 +151,35 @@ export function extractSmartNLP(transcript, language = 'English') {
     if (inferred) extracted['State'] = inferred;
   }
 
+  // 3b. College / Institute Extraction
+  const collegePatterns = [
+    /(?:college|institute|university|संस्थान|कॉलेज|विश्वविद्यालय|collg)\s*:?\s*([A-Za-z\u0900-\u097F\s]+(?:Institute|College|University|संस्थान|कॉलेज))/i,
+    /\b(BIT\s+Institute|IIT\s+[A-Za-z]+|NIT\s+[A-Za-z]+|BITS\s+Pilani|DTU|NSUT|Delhi\s+University|बी\s*आई\s*टी\s*संस्थान)\b/i,
+  ];
+  for (const pat of collegePatterns) {
+    const match = text.match(pat);
+    if (match) {
+      let col = (match[1] || match[0]).trim();
+      if (col.includes('बीआईटी') || col.includes('BIT')) col = 'BIT Institute';
+      extracted['College'] = col;
+      break;
+    }
+  }
+  if (!extracted['College'] && (text.includes('बीआईटी') || text.includes('BIT'))) {
+    extracted['College'] = 'BIT Institute';
+  }
+
+  // 3c. PIN Code Extraction
+  const explicitPinMatch = text.match(/(?:pin|pincode|pin code|पिन|पिन कोड)\s*:?\s*([1-9][0-9]{5})\b/i);
+  if (explicitPinMatch) {
+    extracted['PinCode'] = explicitPinMatch[1];
+  } else {
+    const genericPinMatch = text.match(/\b([1-9][0-9]{5})\b/);
+    if (genericPinMatch && genericPinMatch[1] !== (incomeVal || extracted['Income']) && !/(?:income|आय|salary|rupees|rs|₹)\s*:?\s*\b[1-9][0-9]{5}\b/i.test(text)) {
+      extracted['PinCode'] = genericPinMatch[1];
+    }
+  }
+
   // 4. Comprehensive Course Extraction
   if (/\b(?:b\.?tech|btech|engineering|बीटेक|बी\.टेक|ಬಿ\.ಟೆಕ್|பி\.டெக்)\b/i.test(text)) extracted['Course'] = 'B.Tech';
   else if (/\b(?:m\.?tech|mtech|एमटेक)\b/i.test(text)) extracted['Course'] = 'M.Tech';

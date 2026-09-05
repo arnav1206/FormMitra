@@ -51,8 +51,8 @@ app.use((err, req, res, next) => {
 });
 
 // Start Express listening immediately
-app.listen(PORT, () => {
-  console.log(`🚀 FormMitra Backend Server listening on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 FormMitra Backend Server listening on http://127.0.0.1:${PORT}`);
   console.log(`🎙️ AI Voice & NLP Extraction Engine active on /api/ai/extract`);
 });
 

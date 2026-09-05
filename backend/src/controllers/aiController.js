@@ -42,22 +42,38 @@ export async function extractFields(req, res) {
   }
 }
 
+function resolveLanguageKey(lang) {
+  if (!lang) return 'Hindi';
+  const clean = String(lang).trim().toLowerCase();
+  if (clean === 'hi' || clean.includes('hindi') || clean.includes('हिन्दी')) return 'Hindi';
+  if (clean === 'or' || clean.includes('odia') || clean.includes('oriya') || clean.includes('ଓଡ଼ିଆ')) return 'Odia';
+  if (clean === 'ta' || clean.includes('tamil') || clean.includes('தமிழ்')) return 'Tamil';
+  if (clean === 'te' || clean.includes('telugu') || clean.includes('తెలుగు')) return 'Telugu';
+  if (clean === 'bn' || clean.includes('bengali') || clean.includes('bangla') || clean.includes('বাংলা')) return 'Bengali';
+  if (clean === 'mr' || clean.includes('marathi') || clean.includes('मराठी')) return 'Marathi';
+  if (clean === 'kn' || clean.includes('kannada') || clean.includes('ಕನ್ನಡ')) return 'Kannada';
+  if (clean === 'ml' || clean.includes('malayalam') || clean.includes('മലയാളം')) return 'Malayalam';
+  if (clean === 'en' || clean.includes('english')) return 'English';
+
+  const match = Object.keys(MOCK_TRANSCRIPTS).find((k) => k.toLowerCase() === clean);
+  return match || 'Hindi';
+}
+
 export function getSampleTranscript(req, res) {
-  const { language = 'English' } = req.query;
-  const sample = MOCK_TRANSCRIPTS[language] || MOCK_TRANSCRIPTS['English'];
-  res.json({ success: true, language, transcript: sample });
+  const langKey = resolveLanguageKey(req.query.language);
+  const sample = MOCK_TRANSCRIPTS[langKey] || MOCK_TRANSCRIPTS['Hindi'];
+  res.json({ success: true, language: langKey, transcript: sample });
 }
 
 export async function transcribeAudio(req, res) {
   try {
-    const { language = 'English' } = req.body;
-
-    const transcript = MOCK_TRANSCRIPTS[language] || MOCK_TRANSCRIPTS['English'];
+    const langKey = resolveLanguageKey(req.body.language || req.query.language);
+    const transcript = MOCK_TRANSCRIPTS[langKey] || MOCK_TRANSCRIPTS['Hindi'];
 
     res.json({
       success: true,
       transcript,
-      language,
+      language: langKey,
       engine: 'OpenAI / Groq Whisper Large V3 Turbo STT Engine',
     });
   } catch (err) {

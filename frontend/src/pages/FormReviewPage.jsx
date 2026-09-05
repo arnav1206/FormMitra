@@ -100,7 +100,12 @@ export function FormReviewPage() {
   const [recentlyUpdated, setRecentlyUpdated] = useState({}); // { [fieldName]: timestamp }
 
   const globalRecognitionRef = useRef(null);
+  const isGlobalListeningRef = useRef(false);
   const fieldRecognitionRef = useRef(null);
+
+  useEffect(() => {
+    isGlobalListeningRef.current = isGlobalListening;
+  }, [isGlobalListening]);
 
   // Mark field as recently updated with animation
   const triggerHighlight = (fieldNames) => {
@@ -127,38 +132,60 @@ export function FormReviewPage() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return;
 
-    const recog = new SpeechRecognition();
-    recog.continuous = true;
-    recog.interimResults = true;
-    recog.lang = BCP47_LANG_MAP[voiceLang] || 'hi-IN';
-
-    recog.onresult = (event) => {
-      let fullText = '';
-      for (let i = 0; i < event.results.length; i++) {
-        fullText += event.results[i][0].transcript + ' ';
+    try {
+      if (globalRecognitionRef.current) {
+        try {
+          globalRecognitionRef.current.stop();
+        } catch (e) {}
       }
-      setGlobalTranscript(fullText.trim());
-    };
 
-    recog.onerror = (err) => {
-      console.warn('Global speech recognition error:', err);
-    };
+      const recog = new SpeechRecognition();
+      recog.continuous = true;
+      recog.interimResults = true;
+      recog.lang = BCP47_LANG_MAP[voiceLang] || 'hi-IN';
 
-    recog.onend = () => {
-      setIsGlobalListening(false);
-    };
+      recog.onresult = (event) => {
+        let fullText = '';
+        for (let i = 0; i < event.results.length; i++) {
+          fullText += event.results[i][0].transcript + ' ';
+        }
+        if (fullText.trim()) {
+          setGlobalTranscript(fullText.trim());
+        }
+      };
 
-    globalRecognitionRef.current = recog;
+      recog.onerror = (err) => {
+        console.warn('Global speech recognition error:', err);
+      };
+
+      recog.onend = () => {
+        if (isGlobalListeningRef.current) {
+          try {
+            recog.start();
+          } catch (e) {}
+        }
+      };
+
+      globalRecognitionRef.current = recog;
+
+      if (isGlobalListeningRef.current) {
+        try {
+          recog.start();
+        } catch (e) {}
+      }
+    } catch (e) {
+      console.warn('Global speech recognition init error:', e);
+    }
 
     return () => {
       try {
-        recog.stop();
+        globalRecognitionRef.current?.stop();
       } catch (e) {}
     };
   }, [voiceLang]);
 
   // Toggle Global Voice Dictation
-  const toggleGlobalListening = () => {
+  const toggleGlobalListening = async () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       showToast('Speech recognition not supported in this browser. Please use Chrome/Edge.', 'error');
