@@ -91,8 +91,8 @@ export function AIAssistantWidget() {
 
             {/* Footer */}
             <div className="px-4 py-2.5 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between text-[10px] text-neutral-400">
-              <span>Powered by Gemini 2.0 Flash</span>
-              <span className="font-bold text-violet-500">99.8% Accuracy</span>
+              <span>Powered by Wispr Flow &amp; Gemini 2.0 Flash</span>
+              <span className="font-bold text-violet-500">Wispr Flow AI Active</span>
             </div>
           </motion.div>
         )}

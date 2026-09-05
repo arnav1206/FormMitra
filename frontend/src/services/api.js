@@ -62,13 +62,28 @@ export const aiService = {
     const res = await api.get(`/ai/sample-transcript?language=${encodeURIComponent(language)}`);
     return res.data;
   },
-  transcribeAudio: async (audioBlob, language = 'Hindi') => {
+  transcribeAudio: async (audioBlob, language = 'Hindi', context = '') => {
     const formData = new FormData();
     if (audioBlob) formData.append('audio', audioBlob, 'voice.webm');
     formData.append('language', language);
+    if (context) formData.append('context', context);
     const res = await api.post('/ai/transcribe', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
+    return res.data;
+  },
+  transcribeWithWisprFlow: async (audioBlob, language = 'Hindi', context = '') => {
+    const formData = new FormData();
+    if (audioBlob) formData.append('audio', audioBlob, 'voice.webm');
+    formData.append('language', language);
+    if (context) formData.append('context', context);
+    const res = await api.post('/ai/wispr-flow', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+  polishWithWisprFlow: async (text, language = 'Hindi') => {
+    const res = await api.post('/ai/wispr-flow', { text, language });
     return res.data;
   },
 };

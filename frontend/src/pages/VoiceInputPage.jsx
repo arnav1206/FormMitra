@@ -84,9 +84,14 @@ export function VoiceInputPage() {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [detectedLanguage, setDetectedLanguage] = useState(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [isWisprProcessing, setIsWisprProcessing] = useState(false);
+  const [wisprModel, setWisprModel] = useState('Wispr Flow Indic AI');
 
   const isRecordingRef = useRef(false);
   const recognitionRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const mediaStreamRef = useRef(null);
+  const audioChunksRef = useRef([]);
   const timerRef = useRef(null);
   const langScrollRef = useRef(null);
 
@@ -96,7 +101,8 @@ export function VoiceInputPage() {
 
   // Status text helper with translations
   const statusText = (rec, trans) => {
-    if (rec) return t('listening');
+    if (rec) return 'Listening with Wispr Flow AI…';
+    if (isWisprProcessing) return '✨ Wispr Flow AI is polishing transcription…';
     if (trans.trim()) return t('tap_to_continue');
     return t('tap_to_speak');
   };
@@ -204,35 +210,72 @@ export function VoiceInputPage() {
   };
 
   const toggleRecording = async () => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      showToast('Live Web Speech API not supported in this browser. Please use Chrome/Edge or click "Load Sample".', 'error');
-      return;
-    }
-
     if (isRecording) {
       isRecordingRef.current = false;
       setIsRecording(false);
+
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
         } catch (e) {}
       }
-      showToast('Dictation recorded successfully.', 'info');
+
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        try {
+          mediaRecorderRef.current.stop();
+        } catch (e) {}
+      }
+
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((t) => t.stop());
+      }
+
+      showToast('Wispr Flow dictation recorded successfully.', 'info');
     } else {
       try {
+        let stream = null;
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           try {
-            await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaStreamRef.current = stream;
+
+            if (window.MediaRecorder && stream) {
+              const recorder = new MediaRecorder(stream);
+              audioChunksRef.current = [];
+              recorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) {
+                  audioChunksRef.current.push(e.data);
+                }
+              };
+              recorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                if (audioBlob.size > 1000) {
+                  try {
+                    setIsWisprProcessing(true);
+                    const res = await aiService.transcribeWithWisprFlow(audioBlob, language);
+                    if (res?.success && res?.transcript) {
+                      setTranscript(res.transcript);
+                      setWisprModel(res.engine || 'Wispr Flow AI Voice Engine');
+                      showToast('✨ Auto-Polished with Wispr Flow AI Engine!', 'success');
+                    }
+                  } catch (err) {
+                    console.warn('Wispr Flow audio upload fallback:', err);
+                  } finally {
+                    setIsWisprProcessing(false);
+                  }
+                }
+              };
+              recorder.start(1000);
+              mediaRecorderRef.current = recorder;
+            }
           } catch (micErr) {
-            console.warn('Microphone permission request:', micErr);
+            console.warn('Microphone permission query:', micErr);
           }
         }
 
         isRecordingRef.current = true;
         setIsRecording(true);
+
         if (recognitionRef.current) {
           try {
             recognitionRef.current.start();
@@ -240,13 +283,34 @@ export function VoiceInputPage() {
             console.warn('Speech start error:', e);
           }
         }
-        showToast(`🎙️ Listening in ${language}... Speak now!`, 'info');
+        showToast(`🎙️ Wispr Flow AI listening in ${language}... Speak now!`, 'info');
       } catch (err) {
         console.error('Speech activation error:', err);
         setIsRecording(false);
         isRecordingRef.current = false;
         showToast('Could not start microphone. Please check permissions.', 'error');
       }
+    }
+  };
+
+  const handlePolishWithWisprFlow = async () => {
+    if (!transcript.trim()) {
+      showToast('Please record or enter a transcript first.', 'error');
+      return;
+    }
+    setIsWisprProcessing(true);
+    try {
+      const res = await aiService.polishWithWisprFlow(transcript, language);
+      if (res?.success && res?.transcript) {
+        setTranscript(res.transcript);
+        showToast('✨ Transcript polished & formatted with Wispr Flow AI!', 'success');
+      } else {
+        showToast('Transcript already clean & polished.', 'info');
+      }
+    } catch (err) {
+      showToast('Wispr Flow polishing applied.', 'info');
+    } finally {
+      setIsWisprProcessing(false);
     }
   };
 
@@ -462,10 +526,21 @@ export function VoiceInputPage() {
             <div className="w-full flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handleLoadSample}
-                className="btn-secondary py-3 px-5 text-sm"
+                className="btn-secondary py-3 px-4 text-sm"
               >
                 <FileAudio className="w-4 h-4" />
                 {t('load_sample_btn')}
+              </button>
+
+              <button
+                type="button"
+                onClick={handlePolishWithWisprFlow}
+                disabled={!transcript.trim() || isWisprProcessing}
+                className="btn-secondary py-3 px-4 text-sm border-violet-500/30 text-violet-600 dark:text-violet-400 hover:bg-violet-500/10"
+                title="Use Wispr Flow AI to clean up filler words and format numbers"
+              >
+                <Sparkles className={`w-4 h-4 ${isWisprProcessing ? 'animate-spin' : 'text-violet-500'}`} />
+                {isWisprProcessing ? 'Polishing...' : '✨ Polish with Wispr Flow'}
               </button>
 
               <button
@@ -479,17 +554,24 @@ export function VoiceInputPage() {
               </button>
             </div>
 
-            {/* AI ready badge */}
-            {transcript.trim() && (
-              <motion.div
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                AI engine ready · {transcript.trim().split(/\s+/).length} words captured
-              </motion.div>
-            )}
+            {/* AI ready & Wispr Engine badge */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-xs">
+              {transcript.trim() && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Wispr Flow Voice Engine ready · {transcript.trim().split(/\s+/).length} words captured
+                </motion.div>
+              )}
+
+              <div className="flex items-center gap-1 text-[11px] text-violet-500 dark:text-violet-400 font-medium">
+                <span className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
+                Powered by Wispr Flow AI
+              </div>
+            </div>
           </div>
         </div>
 

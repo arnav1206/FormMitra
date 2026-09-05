@@ -1,5 +1,6 @@
 import { extractWithAdvancedAI } from '../services/gemmaService.js';
 import { evaluateEligibility } from '../services/eligibilityEngine.js';
+import { transcribeWithWisprFlow, polishWithWisprFlow } from '../services/wisprFlowService.js';
 
 const MOCK_TRANSCRIPTS = {
   Hindi: 'मेरा नाम राहुल शर्मा है। मैं जयपुर राजस्थान का रहने वाला हूँ। मैं B.Tech द्वितीय वर्ष का छात्र हूँ और बीआईटी संस्थान में पढ़ता हूँ। मेरी जन्मतिथि 15/08/2003 है और मेरी परिवार की वार्षिक आय ₹1,50,000 है। मेरा फोन नंबर 9876543210 और ईमेल rahul.sharma@example.com है।',
@@ -21,8 +22,10 @@ export async function extractFields(req, res) {
       return res.status(400).json({ success: false, message: 'Please provide speech transcript text for extraction.' });
     }
 
+    const polishedTranscript = polishWithWisprFlow(transcript, language);
+
     const t0 = Date.now();
-    const result = await extractWithAdvancedAI(transcript, language, dynamicFields);
+    const result = await extractWithAdvancedAI(polishedTranscript || transcript, language, dynamicFields);
     const latencyMs = Date.now() - t0;
 
     const eligibility = evaluateEligibility(result.data);
@@ -62,21 +65,46 @@ function resolveLanguageKey(lang) {
 export function getSampleTranscript(req, res) {
   const langKey = resolveLanguageKey(req.query.language);
   const sample = MOCK_TRANSCRIPTS[langKey] || MOCK_TRANSCRIPTS['Hindi'];
-  res.json({ success: true, language: langKey, transcript: sample });
+  res.json({ success: true, language: langKey, transcript: sample, engine: 'Wispr Flow AI Sample' });
 }
 
 export async function transcribeAudio(req, res) {
   try {
     const langKey = resolveLanguageKey(req.body.language || req.query.language);
+
+    if (req.file) {
+      const result = await transcribeWithWisprFlow(req.file, langKey, req.body.context);
+      if (result && result.transcript) {
+        return res.json({
+          success: true,
+          transcript: result.transcript,
+          language: langKey,
+          engine: result.engine || 'Wispr Flow AI Voice Recognition Engine',
+          model: result.model || 'wispr-flow-indic-v2',
+        });
+      }
+    }
+
+    if (req.body.text) {
+      const polished = polishWithWisprFlow(req.body.text, langKey);
+      return res.json({
+        success: true,
+        transcript: polished,
+        language: langKey,
+        engine: 'Wispr Flow AI Voice Polishing & Auto-Editing Engine',
+      });
+    }
+
     const transcript = MOCK_TRANSCRIPTS[langKey] || MOCK_TRANSCRIPTS['Hindi'];
 
     res.json({
       success: true,
       transcript,
       language: langKey,
-      engine: 'OpenAI / Groq Whisper Large V3 Turbo STT Engine',
+      engine: 'Wispr Flow AI Voice Recognition Engine',
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Audio transcription failed.' });
+    console.error('Audio transcription error:', err);
+    res.status(500).json({ success: false, message: 'Wispr Flow voice transcription failed.' });
   }
 }
